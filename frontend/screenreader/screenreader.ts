@@ -46,9 +46,13 @@ window.onload = () => {
 
 function generateHandlers(): void {
     //TODO: get all the HTML elements in the DOM using document.getElementsByTagName("*")
-
+    const collection = document.getElementsByTagName("*");
     //TODO: assign every element an id (you can use the id to locate an element when you implement highlighting)
-
+    let count = 0;
+    for (const elt of collection) {
+        elt.setAttribute('id',count.toString()); // sets unique numerical ID
+        count+=1;
+    }
     //TODO: generate handler functions for all elements based on their tag name
 
     //TODO: add each element to ELEMENT_HANDLERS, along with its handler
