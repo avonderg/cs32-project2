@@ -21,12 +21,16 @@ let current;
 function speak(text: string): void {
     if (VOICE_SYNTH) {
         // initialize a speech request using SpeechSynthesisUtterance
-        // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
+        var utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = VOICE_RATE;
 
-        // check out the onstart and onend attributes of SpeechSynthesisUtterance
-        
-        // consider what might happen if this function is called several times
-        // HINT: use Promises and async/await!
+        VOICE_SYNTH.speak(utterance);
+
+        // calls async func and waits for onend - if called several times
+        utterance.onstart = async function () { // pauses
+            await utterance.onend;
+            return;
+        }
     }
 }
 
@@ -56,6 +60,7 @@ function generateHandlers(): void {
     //TODO: generate handler functions for all elements based on their tag name
 
     //TODO: add each element to ELEMENT_HANDLERS, along with its handler
+
 }
 
 /**
