@@ -13,6 +13,18 @@ let ELEMENT_HANDLERS;
 // Indicates the current element that the user is on
 // You can decide the type of this variable
 let current;
+let PAUSED: boolean = false;
+
+
+class elementHandler {
+    elt: Element;
+    handler: Function
+
+    constructor(elt: Element, handler: Function) {
+        this.elt = elt;
+        this.handler = handler;
+    }
+}
 
 /**
  * Speaks out text.
@@ -49,20 +61,18 @@ window.onload = () => {
 }
 
 function generateHandlers(): void {
-    //TODO: get all the HTML elements in the DOM using document.getElementsByTagName("*")
     const collection = document.getElementsByTagName("*");
-    //TODO: assign every element an id (you can use the id to locate an element when you implement highlighting)
+
     let count = 0;
-    for (const elt of collection) {
+    for (let elt of collection) {
         elt.setAttribute('id',count.toString()); // sets unique numerical ID
         count+=1;
     }
-    //TODO: generate handler functions for all elements based on their tag name
-    for (const elt of collection) {
-        handlers(elt);
-    }
-    //TODO: add each element to ELEMENT_HANDLERS, along with its handler
 
+    ELEMENT_HANDLERS = Array<elementHandler>();
+    for (let elt of collection) {
+       ELEMENT_HANDLERS.push(new elementHandler(elt, handlers(elt)));
+    }
 }
 
 // to use: next week
@@ -172,6 +182,7 @@ function handlers(elt: Element): Function {
             speak(elt.innerHTML);
         }
     }
+    return function(){};
 }
 
 /**
@@ -195,22 +206,32 @@ function next() {}
 /**
  * Moves to the previous HTML element in the DOM.
  */
-function previous() {}
+function previous() {
+
+
+}
 
 /**
  * Starts reading the page continuously.
  */
-function start() {}
+function start() {
+
+
+}
 
 /**
  * Pauses the reading of the page.
  */
- function pause() {}
+ function pause() {
+     PAUSED = true;
+}
 
  /**
  * Resumes the reading of the page.
  */
-  function resume() {}
+  function resume() {
+      PAUSED = false;
+ }
 
 /**
  * Listens for keydown events.
