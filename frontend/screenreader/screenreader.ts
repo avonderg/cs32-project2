@@ -8,11 +8,12 @@ let VOICE_RATE: number = 1;
 // Stores elements and their handler functions
 // Think of an appropriate data structure to do this
 // Assign this variable in mapPage()
-let ELEMENT_HANDLERS;
+let ELEMENT_HANDLERS: elementHandler[];
 
 // Indicates the current element that the user is on
 // You can decide the type of this variable
-let current;
+let current: string; // corresponds to ID of the element
+let prev: elementHandler;
 let PAUSED: boolean = false;
 
 
@@ -201,22 +202,31 @@ function changeVoiceRate(factor: number): void {
 /**
  * Moves to the next HTML element in the DOM.
  */
-function next() {}
+function next() {
+    
+}
 
 /**
  * Moves to the previous HTML element in the DOM.
  */
 function previous() {
-
-
+    ELEMENT_HANDLERS.unshift(prev);
+    current = prev.elt.id;
+    prev.handler();
+    next();
 }
 
 /**
  * Starts reading the page continuously.
  */
 function start() {
-
-
+    var elt = ELEMENT_HANDLERS.shift();
+    if (elt != null) {
+        current = elt.elt.id;
+        elt.handler();
+        prev = elt;
+        next();
+    }
 }
 
 /**
