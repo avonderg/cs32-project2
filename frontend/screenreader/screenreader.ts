@@ -58,9 +58,120 @@ function generateHandlers(): void {
         count+=1;
     }
     //TODO: generate handler functions for all elements based on their tag name
-
+    for (const elt of collection) {
+        handlers(elt);
+    }
     //TODO: add each element to ELEMENT_HANDLERS, along with its handler
 
+}
+
+// to use: next week
+function highlight(text: string, elt: Element): void{
+    var inputText = elt.innerHTML
+
+    var index = inputText.indexOf(text);
+    if (index >= 0) {
+        inputText = inputText.substring(0, index) + "<span class='highlight'>" + inputText.substring(index, index + text.length) + "</span>" + inputText.substring(index + text.length);
+        elt.innerHTML = inputText;
+    }
+    // var element = <HTMLElement> elt;
+    // element.style.backgroundColor = '2px solid yellow';
+}
+
+function handlers(elt: Element): Function {
+    if (elt.tagName === "TITLE") { // metadata
+        return function() {
+            speak("Title:");
+            highlight(elt.innerHTML, elt); // highlight element
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "H1" || elt.tagName === "H2" || elt.tagName === "H3"
+        || elt.tagName === "H4" || elt.tagName === "H5" || elt.tagName === "H6" || elt.tagName === "P") { //text
+        return function() {
+            speak("Header:");
+            highlight(elt.innerHTML, elt); // highlight element
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "IMG") { // graphics
+        var imageElt = <HTMLImageElement> elt;
+        return function() {
+            speak("Graphic:");
+            if (imageElt.alt != null) { // if there is a caption
+                highlight(imageElt.alt, imageElt);
+                speak(imageElt.alt);
+            }
+        }
+    }
+    else if (elt.tagName === "A") { // interactive
+        return function() {
+            speak("URL:");
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+            }
+        }
+    else if (elt.tagName === "LABEL") { // interactive : reads out label for an input form
+        return function() {
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "INPUT") { // interactive
+        return function() {
+            speak("Input:")
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "BUTTON") { // interactive
+        return function() {
+            speak("Button:")
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "TABLE") { // tables
+        var tableElt = <HTMLTableElement> elt;
+        return function() {
+            speak("Table:");
+            highlight(elt.innerHTML, elt); // TODO: fix how tables are highlighted, and non-text objects
+        }
+    }
+    else if (elt.tagName === "CAPTION") { // tables
+        return function() {
+            speak("Caption:");
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "TD") { // tables
+        return function() {
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "TFOOT") { // tables
+        return function() {
+            speak("Summarizing column:"); // TODO: fix how it is announced
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "TH") { // tables
+        return function() {
+            speak("Header:");
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
+    else if (elt.tagName === "TR") { // tables
+        return function() {
+            speak("Row:");
+            highlight(elt.innerHTML, elt);
+            speak(elt.innerHTML);
+        }
+    }
 }
 
 /**
