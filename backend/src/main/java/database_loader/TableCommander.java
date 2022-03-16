@@ -45,8 +45,7 @@ public class TableCommander implements CommandAcceptor {
           System.out.println("Loaded database from file " + input[1]);
         }
         break;
-      case "query":
-        ResultSet results = null;
+      case "modify":
         if (db == null) {
           System.out.println("ERROR: You need to instantiate a database");
           break;
