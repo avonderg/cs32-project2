@@ -13,4 +13,8 @@ public class Table {
     this.headers = headers;
     this.rows = rows;
   }
+
+  public List<String> getHeaders() {
+    return headers;
+  }
 }

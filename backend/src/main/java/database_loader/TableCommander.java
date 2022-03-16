@@ -33,9 +33,9 @@ public class TableCommander implements CommandAcceptor {
           System.out.println("ERROR: Input must be of length two");
           return;
         }
-
         try {
           db = new TableLoader(input[1]);
+          System.out.println(TableLoader.getTableNames());
         } catch (SQLException e) {
           System.out.println("ERROR: Could not connect to database");
         } catch (ClassNotFoundException e) {

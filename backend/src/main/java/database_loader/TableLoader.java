@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class TableLoader {
-  private Connection conn = null;
+  private static Connection conn = null;
 
   public TableLoader(String filename)
       throws SQLException, ClassNotFoundException {
@@ -24,7 +24,7 @@ public class TableLoader {
     conn = DriverManager.getConnection(urlToDB);
   }
 
-  public ResultSet runCommand(String command) throws SQLException, IllegalStateException {
+  public static ResultSet runCommand(String command) throws SQLException, IllegalStateException {
     if (conn == null) {
       throw new IllegalStateException("ERROR: Cannot prepare statement before db is loaded.");
     }
@@ -35,7 +35,7 @@ public class TableLoader {
     return null;
   }
 
-  public Set<String> getTableNames()
+  public static Set<String> getTableNames()
       throws SQLException, IllegalStateException {
 
     ResultSet dbRes = runCommand("SELECT tbl_name FROM sqlite_master;");
@@ -48,7 +48,7 @@ public class TableLoader {
     return tableNames;
   }
 
-  public Table getTable(String tableName)
+  public static Table getTable(String tableName)
       throws SQLException, IllegalStateException, IllegalArgumentException {
     if (tableName == null) {
       throw new IllegalArgumentException("ERROR: Cannot get null table.");

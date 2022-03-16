@@ -18,6 +18,9 @@ import spark.Response;
 import spark.Route;
 import spark.Spark;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 /**
  * The Main class of our project. This is where execution begins.
@@ -107,29 +110,52 @@ public final class Main {
     // easier, but it’s not a good idea for deployment.
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
 
-    Spark.get("/table", new TableHandler());
+    Spark.post("/table", new TableHandler());
+    Spark.get("/tableNames", new TableNameHandler());
 
     Spark.init();
   }
 
-  /**
-   * Handles requests for horoscope matching on an input
-   *
-   * @return GSON which contains the result of MatchMaker.makeMatches
-   */
-  private class TableHandler implements Route {
+
+  public class TableHandler implements Route {
     private final Gson GSON = new Gson();
 
     @Override
     public String handle(Request req, Response res) {
-      String tableName = req.queryParams("name");
+      String tableName = "";
+      JSONObject values = null;
+
+      try {
+        values = new JSONObject(req.body());
+
+        tableName = values.getString("name");
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
 
       try {
         return GSON.toJson(TableCommander.db.getTable(tableName));
       } catch (IllegalStateException | IllegalArgumentException e) {
         return GSON.toJson(e.getMessage());
       } catch (SQLException e) {
-        return GSON.toJson("ERROR: Some error while exectuing sql.");
+        return GSON.toJson(e.getMessage());
+      }
+    }
+  }
+
+  public class TableNameHandler implements Route {
+    private final Gson GSON = new Gson();
+
+    @Override
+    public String handle(Request req, Response res) {
+
+      try {
+        return GSON.toJson(TableCommander.db.getTableNames());
+      } catch (IllegalStateException e) {
+        return GSON.toJson(e.getMessage());
+      } catch (SQLException e) {
+        return GSON.toJson(e.getMessage());
       }
     }
   }
