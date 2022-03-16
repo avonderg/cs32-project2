@@ -117,9 +117,22 @@ public final class Main {
   }
 
 
-  public class TableHandler implements Route {
+
+  // TODO: MOVE TO OWN CLASS
+
+  /**
+   * Class that handles any POST request to the /table endpoint.
+   * @author Suraj Anand
+   */
+  private class TableHandler implements Route {
     private final Gson GSON = new Gson();
 
+    /**
+     * Handles a request to spark backend server and this route.
+     * @param req spark request (handled in typescript)
+     * @param res spark response (handled in typescript)
+     * @return String representing JSON object
+     */
     @Override
     public String handle(Request req, Response res) {
       String tableName = "";
@@ -127,35 +140,55 @@ public final class Main {
 
       try {
         values = new JSONObject(req.body());
-
         tableName = values.getString("name");
-
       } catch (JSONException e) {
         e.printStackTrace();
       }
 
+      // TODO: Handle errors on the frontend
       try {
         return GSON.toJson(TableCommander.db.getTable(tableName));
-      } catch (IllegalStateException | IllegalArgumentException e) {
+        // returns table
+      } catch (IllegalArgumentException e) {
         return GSON.toJson(e.getMessage());
+        // returns error message
       } catch (SQLException e) {
         return GSON.toJson(e.getMessage());
+        // returns error message
       }
     }
   }
 
-  public class TableNameHandler implements Route {
+  // TODO: MOVE TO OWN CLASS
+  /**
+   * Class that handles any GET request to the /tableNames endpoint.
+   * @author Suraj Anand
+   */
+  private class TableNameHandler implements Route {
+    /**
+     * Creates a new GSON to create Json String from Object.
+     */
     private final Gson GSON = new Gson();
 
+    /**
+     * Handles a request to spark backend server and this route.
+     * @param req spark request (handled in typescript)
+     * @param res spark response (handled in typescript)
+     * @return String representing JSON object
+     */
     @Override
     public String handle(Request req, Response res) {
 
+      // TODO: Handle errors on the frontend
       try {
         return GSON.toJson(TableCommander.db.getTableNames());
+        // returns table names
       } catch (IllegalStateException e) {
         return GSON.toJson(e.getMessage());
+        // returns error
       } catch (SQLException e) {
         return GSON.toJson(e.getMessage());
+        // returns error
       }
     }
   }
