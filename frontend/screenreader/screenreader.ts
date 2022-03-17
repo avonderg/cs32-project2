@@ -8,62 +8,40 @@ let VOICE_RATE: number = 1;
 // Stores elements and their handler functions
 // Think of an appropriate data structure to do this
 // Assign this variable in mapPage()
-let ELEMENT_HANDLERS: elementHandler[];
+let ELEMENT_HANDLERS: {[key: number]: [HTMLElement, (arg0: HTMLElement) => void]} = {};
 
 // Indicates the current element that the user is on
 // You can decide the type of this variable
 let current: string; // corresponds to ID of the element
-let prev: elementHandler;
-let PAUSED: boolean = false;
 
-
-/**
- * Class for creating an element handler data structure, allowing HTML elements to be mapped to their handler
- * functions
- */
-class elementHandler {
-    elt: Element;
-    handler: Function
-
-    constructor(elt: Element, handler: Function) {
-        this.elt = elt;
-        this.handler = handler;
-    }
-}
 
 /**
  * Speaks out text.
  * @param text the text to speak
  */
-function speak(text: string): void {
+function speak(text: string) {
     if (VOICE_SYNTH) {
         // initialize a speech request using SpeechSynthesisUtterance
         var utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = VOICE_RATE;
 
+        // listens for pause
+        utterance.addEventListener('pause', function(event) {
+            console.log('Speech paused after ' + event.elapsedTime + ' milliseconds.');
+        });
+
         VOICE_SYNTH.speak(utterance);
 
-        // check if it is speaking
-        //
-        // utterance.onstart = async function () {
-        //     await new Promise<void>((resolve) => {
-        //         if(utterance.onend && !PAUSED) {
-        //             resolve();
-        //         }
-        //     });
-        //     return;
-        // }
+        // begins to speak
 
-        // onkeydown = async function (event : KeyboardEvent) {
-        //     globalKeystrokes(event);
-        // }
-
-
-        // calls async func and waits for onend - if called several times
-        utterance.onstart = async function () { // pauses
-            await utterance.onend;
-            return;
-        }
+        console.log("Rate: " + utterance.rate)
+        return new Promise<void>((resolve) => {
+            window.setInterval(() => {
+                if (!VOICE_SYNTH.speaking) {
+                    resolve()
+                }
+            }, 100)
+        })
     }
 }
 
@@ -81,6 +59,17 @@ window.onload = () => {
 
     VOICE_SYNTH = window.speechSynthesis;
 
+    // need to get the buttons
+    // screen reader button click events
+    const buttons = document.getElementById("screenReader")!.getElementsByTagName("button")
+    buttons[0]!.addEventListener("click", (event) => start("0"));
+    buttons[1]!.addEventListener("click", function(){
+        if (VOICE_SYNTH.paused) { resume(); }
+        else { pause(); }
+    });
+    buttons[2]!.addEventListener("click", (event) => changeVoiceRate(1.1));
+    buttons[3]!.addEventListener("click", (event) => changeVoiceRate(0.1));
+
     document.addEventListener("keydown", globalKeystrokes);
 }
 
@@ -89,17 +78,101 @@ window.onload = () => {
  * ELEMENT_HANDLERS array along with their handler functions
  */
 function generateHandlers(): void {
-    const collection = document.getElementsByTagName("*");
+    // gets HTML elements
+    const collection : HTMLCollectionOf<Element> = document.getElementsByTagName("*");
 
-    let count = 0;
-    for (let elt of collection as any) {
-        elt.setAttribute('id',count.toString()); // sets unique numerical ID
-        count+=1;
+    // iterates through all DOM elements
+    for (var i=0; i<collection.length; i++){
+        const htmlElt = collection[i] as HTMLElement
+        let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
+        let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
+
+        // assigns an id to each element
+        htmlElt.id = String(i);
+
+        // stores elements and corresponding handlers in global ELEMENT_HANDLERS
+        if (textTags.indexOf(htmlElt.tagName) > -1) {
+            ELEMENT_HANDLERS[i] = [htmlElt, (x) => pureTextHandlers(x)]
+        } else if (htmlElt.tagName == "IMG") {
+            ELEMENT_HANDLERS[i] = [htmlElt, (x) => imgHandlers(x)]
+        } else if (htmlElt.tagName == "A") {
+            ELEMENT_HANDLERS[i] = [htmlElt, (x) => linkHandlers(x)]
+        } else if (htmlElt.tagName == "INPUT") {
+            ELEMENT_HANDLERS[i] = [htmlElt, (x) => inputHandlers(x)]
+        } else if (tableTags.indexOf(htmlElt.tagName) > -1) {
+            ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
+        }
     }
+}
 
-    ELEMENT_HANDLERS = Array<elementHandler>();
-    for (let elt of collection as any) {
-       ELEMENT_HANDLERS.push(new elementHandler(elt, handlers(elt)));
+/**
+ * Generates handler functions for text elements
+ * @param elt: HTMLElement input
+ */
+function pureTextHandlers(elt : HTMLElement): void {
+    if (elt.tagName == "TITLE") {
+        speak("Title :" + (elt.textContent as string))
+    } else if (elt.tagName == "LABEL"){
+        speak("Label :" + (elt.textContent as string))
+    } else {
+        speak((elt.textContent as string))
+    }
+}
+
+/**
+ * Generates handler functions for image elements
+ * @param elt: HTMLElement input
+ */
+function imgHandlers(elt: HTMLElement): void {
+    speak((elt as HTMLImageElement).alt as string)
+}
+
+/**
+ * Generates handler functions for input elements
+ * @param elt: HTMLElement input
+ */
+function inputHandlers(elt: HTMLElement): void {
+    speak("There is an input of type \""
+        + (elt as HTMLInputElement).type +" \" here. Click enter to interact with it.")
+    document.body.addEventListener("keyup", function(event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.key === "enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            resume();
+        }
+    });
+    pause();
+}
+
+/**
+ * Generates handler functions for link elements
+ * @param elt: HTMLElement input
+ */
+function linkHandlers(elt: HTMLElement): void {
+    document.body.addEventListener("keyup", function(event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.key === "enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            window.open((elt as HTMLLinkElement).href);
+        }
+    });
+    speak("link: " + elt.textContent +
+        "Click enter to open the link. Click r to resume");
+}
+
+/**
+ * Generates handler functions for table elements
+ * @param elt:  HTMLElement input
+ */
+function tableHandlers(elt: HTMLElement): void {
+    if (elt.tagName == "CAPTION" || elt.tagName == "TH" || elt.tagName === "TD"){
+        if (elt.children.length<0) {
+            speak(elt.textContent as string)
+        }
     }
 }
 
@@ -109,120 +182,36 @@ function generateHandlers(): void {
  * @param text - text to highlight
  * @param elt - current element
  */
-function highlight(text: string, elt: Element): void{
-    // var inputText = elt.innerHTML
-    //
-    // var index = inputText.indexOf(text);
-    // if (index >= 0) {
-    //     inputText = inputText.substring(0, index) + "<span class='highlight'>" + inputText.substring(index, index + text.length) + "</span>" + inputText.substring(index + text.length);
-    //     elt.innerHTML = inputText;
-    // }
-    var element = <HTMLElement> elt;
-    element.style.backgroundColor = '2px solid yellow';
-    return;
-}
+function highlight(elt: Element): void{
+    // // var inputText = elt.innerHTML
+    // //
+    // // var index = inputText.indexOf(text);
+    // // if (index >= 0) {
+    // //     inputText = inputText.substring(0, index) + "<span class='highlight'>" + inputText.substring(index, index + text.length) + "</span>" + inputText.substring(index + text.length);
+    // //     elt.innerHTML = inputText;
+    // // }
+    // var element = <HTMLElement> elt;
+    // element.style.backgroundColor = '2px solid yellow';
+    // return;
+    var body = document.getElementById("BODY")
+    var bodyColor;
+    if (body != null ){
+        bodyColor = body.style.color;
+    }
 
-/**
- * Helper function generating handler functions for each of the different HTML elements being handled
- * @param elt
- */
-function handlers(elt: Element): Function {
-    if (elt.tagName === "TITLE") { // metadata
-        return function() {
-            speak("Title");
-            highlight(elt.innerHTML, elt); // highlight element
-            speak(elt.textContent || "");
-        }
+    // change style of previously selected value
+    var prev = document.getElementById(String(+elt.id-1));
+    if(prev != null){
+        prev.style.background = bodyColor || "";
+        prev.style.color="#000";
     }
-    else if (elt.tagName === "H1" || elt.tagName === "H2" || elt.tagName === "H3"
-        || elt.tagName === "H4" || elt.tagName === "H5" || elt.tagName === "H6" || elt.tagName === "P") { //text
-        return function() {
-            if (elt.tagName != "P") {
-                speak("Header");
-            }
-            highlight(elt.innerHTML, elt); // highlight element
-            speak(elt.textContent || "");
-        }
+
+    var curr = document.getElementById(elt.id);
+    if( curr != null) {
+        curr.style.background = "#0098b2";
+        curr.style.color = "fff";
     }
-    else if (elt.tagName === "IMG") { // graphics
-        var imageElt = <HTMLImageElement> elt;
-        return function() {
-            speak("Graphic:");
-            if (imageElt.alt != null) { // if there is a caption
-                highlight(imageElt.alt, imageElt);
-                speak(imageElt.alt);
-            }
-        }
-    }
-    else if (elt.tagName === "A") { // interactive
-        return function() {
-            speak("URL:");
-            highlight(elt.innerHTML, elt);
-            speak(elt.textContent || "");
-            }
-        }
-    else if (elt.tagName === "LABEL") { // interactive : reads out label for an input form
-        return function() {
-            highlight(elt.innerHTML, elt);
-            speak(elt.textContent || "");
-        }
-    }
-    else if (elt.tagName === "INPUT") { // interactive
-        return function() {
-            speak("Input:")
-            highlight(elt.innerHTML, elt);
-            speak(elt.textContent || "");
-        }
-    }
-    else if (elt.tagName === "BUTTON") { // interactive
-        return function() {
-            speak("Button:")
-            highlight(elt.innerHTML, elt);
-            speak(elt.textContent || "");
-        }
-    }
-    else if (elt.tagName === "TABLE") { // tables
-        var tableElt = <HTMLTableElement> elt;
-        return function() {
-            speak("Table:");
-            highlight(elt.innerHTML, elt); // TODO: fix how tables are highlighted, and non-text objects
-        }
-    }
-    else if (elt.tagName === "CAPTION") { // tables
-        return function() {
-            speak("Caption:");
-            highlight(elt.innerHTML, elt);
-            speak(elt.textContent || "");
-        }
-    }
-    else if (elt.tagName === "TD") { // tables
-        return function() {
-            highlight(elt.innerHTML, elt);
-            // speak(elt.textContent || "");
-        }
-    }
-    else if (elt.tagName === "TFOOT") { // tables
-        return function() {
-            speak("Summarizing column:"); // TODO: fix how it is announced
-            highlight(elt.innerHTML, elt);
-            speak(elt.textContent || "");
-        }
-    }
-    else if (elt.tagName === "TH") { // tables
-        return function() {
-            speak("Header:");
-            highlight(elt.innerHTML, elt);
-            speak(elt.textContent || "");
-        }
-    }
-    else if (elt.tagName === "TR") { // tables
-        return function() {
-            speak("Row:");
-            highlight(elt.innerHTML, elt);
-            // speak(elt.textContent || "");
-        }
-    }
-    return function(){};
+
 }
 
 /**
@@ -242,12 +231,12 @@ function changeVoiceRate(factor: number): void {
  * Moves to the next HTML element in the DOM.
  */
 function next() {
-    var elt = ELEMENT_HANDLERS.shift();
-    if (elt != null) {
-        current = elt.elt.id;
-        elt.handler();
-        prev = elt;
-        next();
+    VOICE_SYNTH.cancel();
+    const next: number = +current+1;
+    const nextElt = ELEMENT_HANDLERS[next]
+    if ( nextElt != null) {
+        current = String(next);
+        start(String(next))
     }
 }
 
@@ -255,26 +244,25 @@ function next() {
  * Moves to the previous HTML element in the DOM.
  */
 function previous() {
-    ELEMENT_HANDLERS.unshift(prev);
-    current = prev.elt.id;
-    prev.handler();
-    next();
+    VOICE_SYNTH.cancel();
+    const prev: number = +current-1;
+    const prevElt = ELEMENT_HANDLERS[prev]
+    if ( prevElt != null) {
+        current = String(prev)
+        start(String(prev))
+    }
 }
 
 /**
  * Starts reading the page continuously.
  */
-function start() {
-    if (PAUSED) {
-        VOICE_SYNTH.resume();
-    }
-    else {
-        var elt = ELEMENT_HANDLERS.shift();
-        if (elt != null) {
-            current = elt.elt.id;
-            elt.handler(); // calls function to start speaking
-            prev = elt;
-            next();
+function start(curr: String) {
+    for (const elt in ELEMENT_HANDLERS) {
+        if (curr <= elt) {
+            current = elt;
+            const curElt = ELEMENT_HANDLERS[elt];
+            highlight(curElt[0]);
+            curElt[1](curElt[0])
         }
     }
 }
@@ -283,7 +271,6 @@ function start() {
  * Pauses the reading of the page.
  */
  function pause() {
-     PAUSED = true;
      VOICE_SYNTH.pause();
 }
 
@@ -291,7 +278,6 @@ function start() {
  * Resumes the reading of the page.
  */
   function resume() {
-      PAUSED = false;
       VOICE_SYNTH.resume();
  }
 
@@ -303,9 +289,7 @@ function globalKeystrokes(event: KeyboardEvent): void {
     // can change and add key mappings as needed
     if (event.key === " ") {
         event.preventDefault();
-        //TODO: start reading the entire page
-        PAUSED = false;
-        start();
+        start("0");
     } else if (event.key === "ArrowRight") {
         event.preventDefault();
         changeVoiceRate(1.1);
@@ -313,15 +297,11 @@ function globalKeystrokes(event: KeyboardEvent): void {
         event.preventDefault();
         changeVoiceRate(0.9);
     }
-    else if (event.key === "r") {
-        if (PAUSED) { // if it is paused
-            PAUSED = false;
+    else if (event.key === "p") {
+        if (VOICE_SYNTH.paused) {  // if it is paused, then resume
             resume();
         }
-    }
-    else if (event.key === "p") {
-        if (!PAUSED) { // if it is not paused
-            PAUSED = true;
+        else {  // otherwise, pause
             pause();
         }
     }
