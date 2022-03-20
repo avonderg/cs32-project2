@@ -110,7 +110,7 @@ public class DatabaseCommander implements CommandAcceptor {
         }
         try {
           if (results != null) {
-            printResults(results);
+            DatabaseCommander.printResults(results);
           }
         } catch (SQLException e) {
           System.out.println("ERROR: Trouble printing results");
@@ -127,7 +127,7 @@ public class DatabaseCommander implements CommandAcceptor {
    * @param results a ResultSet from a query.
    * @throws SQLException if the results do not have metadata.
    */
-  public void printResults(ResultSet results) throws SQLException {
+  public static void printResults(ResultSet results) throws SQLException {
     ResultSetMetaData rsmd = results.getMetaData();
     // logic from stackOverflow
     int columnsNumber = rsmd.getColumnCount();
