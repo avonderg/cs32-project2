@@ -9,8 +9,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class TableCommander implements CommandAcceptor {
-  private static Connection conn = null;
-  public static TableLoader db = null;
+  private final Connection conn = null;
+  private static TableLoader db = null;
+  /**
+   * retrieves the TableLoader associated with this class.
+   * @return the TableLoader field
+   */
+  public static TableLoader getDb() {
+    return db;
+  }
 
   /**
    * function that handles commands associated with the database.
@@ -40,7 +47,9 @@ public class TableCommander implements CommandAcceptor {
           System.out.println("ERROR: You need to instantiate a database");
           break;
         }
-        // TODO: SAVED THIS FOR YOU NEIL <3
+        break;
+      default:
+        System.out.println("ERROR: invalid command");
         break;
     }
   }

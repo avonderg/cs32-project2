@@ -27,9 +27,9 @@ public class TableNameHandler implements Route {
   @Override
   public String handle(Request req, Response res) {
 
-    // TODO: Handle errors on the frontend
+//     TODO: Handle errors on the frontend
     try {
-      return GSON.toJson(TableCommander.db.getTableNames());
+      return GSON.toJson(TableCommander.getDb().getTableNames());
       // returns table names
     } catch (IllegalStateException e) {
       return GSON.toJson(e.getMessage());

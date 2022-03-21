@@ -67,7 +67,7 @@ public class TableLoader {
   }
 
   /**
-   * @return
+   * @return a set of strings representing the table names.
    * @throws SQLException
    * @throws IllegalStateException
    */
@@ -130,7 +130,7 @@ public class TableLoader {
   }
 
   /**
-   * Inserts a new row containing data into the table
+   * Inserts a new row containing data into the table.
    * @param tableName
    * @param dataValues
    * @throws SQLException
@@ -188,10 +188,10 @@ public class TableLoader {
       for (Map.Entry<String, String> dataPair : dataValues.entrySet()) {
         String colName = dataPair.getKey();
         String val = dataPair.getValue();
-        String setPair = colName + " = " + "'" + val + "', ";
+        String setPair = colName + " = " + "'" + val + "',";
         setQuery.append(setPair);
       }
-
+      setQuery.deleteCharAt(setQuery.length() - 1);
       String setAsString = setQuery.toString();
       System.out.println(setAsString);
 

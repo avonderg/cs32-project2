@@ -5,8 +5,11 @@ package edu.brown.cs.student.main;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import backendapi.TableDeleteHandler;
 import backendapi.TableHandler;
+import backendapi.TableInsertHandler;
 import backendapi.TableNameHandler;
+import backendapi.TableUpdateHandler;
 import com.google.gson.Gson;
 import databaseloader.TableCommander;
 import joptsimple.OptionParser;
@@ -109,6 +112,10 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
 
     Spark.post("/table", new TableHandler());
+    Spark.post("/add", new TableInsertHandler());
+    Spark.post("/delete", new TableDeleteHandler());
+    Spark.post("/update", new TableUpdateHandler());
+
     Spark.get("/tableNames", new TableNameHandler());
 
     Spark.init();
