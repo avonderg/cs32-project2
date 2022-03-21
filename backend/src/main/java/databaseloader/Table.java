@@ -1,4 +1,4 @@
-package database_loader;
+package databaseloader;
 
 import com.google.common.collect.ImmutableList;
 

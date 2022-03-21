@@ -56,7 +56,7 @@ async function load() : Promise<void> {
     updateTable(tableData);
 }
 
-// updates the table specified by thte dropdown menu when load is clicked
+// updates the table specified by the dropdown menu when load is clicked
 function updateTable(tableData : Table) : void{
     table.innerHTML = "";
     let headerRow : HTMLTableRowElement = table.insertRow()

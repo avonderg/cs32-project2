@@ -1,22 +1,12 @@
-package database_loader;
+package databaseloader;
 
 
 import database.DatabaseCommander;
-import database.DatabaseProxy;
-import database.Permission;
 import edu.brown.cs.student.main.CommandAcceptor;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class TableCommander implements CommandAcceptor {
   private static Connection conn = null;
@@ -35,7 +25,7 @@ public class TableCommander implements CommandAcceptor {
         }
         try {
           db = new TableLoader(input[1]);
-          System.out.println(TableLoader.getTableNames());
+          System.out.println(db.getTableNames());
         } catch (SQLException e) {
           System.out.println("ERROR: Could not connect to database");
         } catch (ClassNotFoundException e) {
@@ -51,7 +41,7 @@ public class TableCommander implements CommandAcceptor {
           break;
         }
         // TODO: SAVED THIS FOR YOU NEIL <3
-        return;
+        break;
     }
   }
 
