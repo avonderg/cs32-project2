@@ -13,28 +13,38 @@ type TableName = {
     name: string,
 }
 
+type DeleteParams = {
+    name: string,
+    row: Record<string, string>,
+}
+
+type AddParams = {
+    name: string,
+    columns: string,
+    values: string
+}
+
+type UpdateParams = {
+    name: string,
+    row: Record<string, string>,
+    columns: string,
+    values: string
+}
+
 const loadButton : HTMLButtonElement = document.getElementById("loader") as HTMLButtonElement;
 const dropdown : HTMLDivElement = document.getElementById("dropdown") as HTMLDivElement;
 const table : HTMLTableElement = document.getElementById("displayTable") as HTMLTableElement;
 let rowCount : number = 0;
 
-const addButton: HTMLButtonElement = document.getElementById("add") as HTMLButtonElement;
-const deleteButton: HTMLButtonElement = document.getElementById("delete") as HTMLButtonElement;
-const updateButton: HTMLButtonElement = document.getElementById("update") as HTMLButtonElement;
+const addButton: HTMLButtonElement = document.getElementById("addButton") as HTMLButtonElement;
+const deleteButton: HTMLButtonElement = document.getElementById("deleteButton") as HTMLButtonElement;
+const updateButton: HTMLButtonElement = document.getElementById("updateButton") as HTMLButtonElement;
 
-addButton.addEventListener("")
-function addRow() : void {
+let tableData : Table;
 
-}
-
-
-function deleteRow() : void {
-
-}
-
-function updateRow() : void {
-
-}
+deleteButton.addEventListener("click", deleteRow)
+addButton.addEventListener("click", addRow)
+updateButton.addEventListener("click", updateRow)
 
 fetch("http://localhost:4567/tableNames").then((res : Response) => res.json()).then((tableNames: string[]) => updateDropdown(tableNames))
 
@@ -68,7 +78,7 @@ async function load() : Promise<void> {
     });
     // fetches the table data for the loaded sql database and table specified by dropdown from backend
 
-    let tableData : Table = await res.json();
+    tableData = await res.json();
     // parses data to table 
 
     updateTable(tableData);
@@ -90,9 +100,12 @@ function updateTable(tableData : Table) : void{
 // generates the html to insert the header row into the table
 function insertHeaders(headers : string[], headerRow : HTMLTableRowElement) : Map<number, string> {
     let map : Map<number, string>  = new Map<number, string>();
-    
+
+    let rowID : HTMLTableCellElement = headerRow.insertCell(0)
+    rowID.innerHTML = "row";
+
     for (let i = 0; i < headers.length; i++) {
-        let currCell : HTMLTableCellElement = headerRow.insertCell(i)
+        let currCell : HTMLTableCellElement = headerRow.insertCell(i + 1)
         currCell.innerHTML = headers[i]; 
         map.set(i, headers[i])
     }
@@ -105,11 +118,15 @@ function insertHeaders(headers : string[], headerRow : HTMLTableRowElement) : Ma
 function insertRows(table : HTMLTableElement, rows :  Record<string, string>[], headerMap :  Map<number, string>) {
     for (let i = 0; i < rows.length; i++) { 
         let currRow : HTMLTableRowElement = table.insertRow()
+        let rowID : HTMLTableCellElement = currRow.insertCell(0)
+        let rowCellText = document.createTextNode(String(i));
+        rowID.appendChild(rowCellText)
+
         for (let entry of Array.from(headerMap.entries())) { 
             let key = entry[0];
             let value = entry[1];
 
-            let currCell : HTMLTableCellElement = currRow.insertCell(key)
+            let currCell : HTMLTableCellElement = currRow.insertCell(key + 1)
             let currRecord : Record<string, string> = rows[i]
             // gets the value for the specified column header (in this row)
 
@@ -122,4 +139,92 @@ function insertRows(table : HTMLTableElement, rows :  Record<string, string>[], 
             // puts the value intot the cell
         } 
     }
+}
+
+
+async function deleteRow() : Promise<void> {
+    let deleteInput : HTMLInputElement = document.getElementById("delete_row") as HTMLInputElement;
+    let tableNames : HTMLSelectElement = document.getElementById("tableNames") as HTMLSelectElement;
+
+
+    const deleteParams : DeleteParams = {
+        name: tableNames.value,
+        row: tableData.rows[parseInt(deleteInput.value)]
+    };
+
+    const res : Response = await fetch("http://localhost:4567/delete", {
+        method: 'post',
+        body: JSON.stringify(deleteParams),
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            "Access-Control-Allow-Origin":"*"
+        }
+    });
+    // fetches the table data for the loaded sql database and table specified by dropdown from backend
+
+    let updatedTableData : Table = await res.json();
+    // parses data to table
+
+    updateTable(updatedTableData);
+    tableData = updatedTableData;
+}
+
+async function addRow() : Promise<void> {
+    let addColumns : HTMLInputElement = document.getElementById("add_columns") as HTMLInputElement;
+    let addValues : HTMLInputElement = document.getElementById("add_values") as HTMLInputElement;
+
+    let tableNames : HTMLSelectElement = document.getElementById("tableNames") as HTMLSelectElement;
+
+    const addParams : AddParams = {
+        name: tableNames.value,
+        columns: addColumns.value,
+        values: addValues.value
+    };
+
+    const res : Response = await fetch("http://localhost:4567/add", {
+        method: 'post',
+        body: JSON.stringify(addParams),
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            "Access-Control-Allow-Origin":"*"
+        }
+    });
+    // fetches the table data for the loaded sql database and table specified by dropdown from backend
+
+    let updatedTableData : Table = await res.json();
+    // parses data to table
+
+    updateTable(updatedTableData);
+    tableData = updatedTableData;
+}
+
+async function updateRow() : Promise<void> {
+    let updateRow : HTMLInputElement = document.getElementById("update_row") as HTMLInputElement;
+    let updateColumns : HTMLInputElement = document.getElementById("update_column") as HTMLInputElement;
+    let newValues : HTMLInputElement = document.getElementById("new_value") as HTMLInputElement;
+
+    let tableNames : HTMLSelectElement = document.getElementById("tableNames") as HTMLSelectElement;
+
+    const updateParams : UpdateParams = {
+        name: tableNames.value,
+        row: tableData.rows[parseInt(updateRow.value)],
+        columns: updateColumns.value,
+        values: newValues.value
+    };
+
+    const res : Response = await fetch("http://localhost:4567/update", {
+        method: 'post',
+        body: JSON.stringify(updateParams),
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            "Access-Control-Allow-Origin":"*"
+        }
+    });
+    // fetches the table data for the loaded sql database and table specified by dropdown from backend
+
+    let updatedTableData : Table = await res.json();
+    // parses data to table
+
+    updateTable(updatedTableData);
+    tableData = updatedTableData;
 }

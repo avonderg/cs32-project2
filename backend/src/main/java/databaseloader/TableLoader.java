@@ -1,5 +1,8 @@
 package databaseloader;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,6 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -150,9 +154,11 @@ public class TableLoader {
         values.append("'").append(value).append("'").append(", ");
       }
       // formatting end of inputs
-      columns.deleteCharAt(columns.length() - 1);
+      System.out.println(columns);
+      System.out.println(values);
+      columns.delete(columns.length() - 2, columns.length());
       columns.append(")");
-      values.deleteCharAt(columns.length() - 1);
+      values.delete(values.length() - 2, values.length());
       values.append(")");
 
       String colsToInsert = columns.toString();
@@ -164,42 +170,78 @@ public class TableLoader {
       Statement stmt = conn.createStatement();
       String insertQuery = "INSERT INTO " + tableName + " "
           + colsToInsert + " VALUES " + valsToInsert;
+      System.out.println(insertQuery);
       stmt.executeUpdate(insertQuery);
       System.out.println("Successfully inserted into database");
     }
   }
 
-  public void deleteRow(String tableName, String primaryKey, String id)
+  public void deleteRow(String tableName, JSONObject row)
       throws SQLException, IllegalArgumentException {
     if (checkValidTable(tableName)) {
       // Prepare a statement to delete the row from the table.
-      PreparedStatement deletion = conn.prepareStatement(
-          "DELETE FROM " + tableName + " WHERE " + primaryKey + " == " + id);
-      deletion.executeUpdate();
-      System.out.println("Successfully deleted from database");
+      try {
+        StringBuilder deleteQuery = new StringBuilder();
+        Iterator keys = row.keys();
+        while (keys.hasNext()) {
+          String currKey = (String) keys.next();
+          String val = row.getString(currKey);
+          String colEq = currKey +  " == " + "'" + val + "'" + " AND ";
+          deleteQuery.append(colEq);
+        }
+        deleteQuery.delete(deleteQuery.length() - 4, deleteQuery.length());
+        String delQuery = deleteQuery.toString();
+        System.out.println("DELETE FROM " + tableName + " WHERE " + delQuery);
+
+        PreparedStatement deletion = conn.prepareStatement(
+            "DELETE FROM " + tableName + " WHERE " + delQuery);
+        deletion.executeUpdate();
+        System.out.println("Successfully deleted from database");
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    } else {
+      System.out.println("ERROR: TABLE INVALID");
     }
   }
 
-  public void updateRow(String tableName, String primaryKey, String id,
+  public void updateRow(String tableName, JSONObject row,
                                Map<String, String> dataValues)
       throws SQLException, IllegalArgumentException {
     if (checkValidTable(tableName)) {
-      StringBuilder setQuery = new StringBuilder();
-      for (Map.Entry<String, String> dataPair : dataValues.entrySet()) {
-        String colName = dataPair.getKey();
-        String val = dataPair.getValue();
-        String setPair = colName + " = " + "'" + val + "',";
-        setQuery.append(setPair);
-      }
-      setQuery.deleteCharAt(setQuery.length() - 1);
-      String setAsString = setQuery.toString();
-      System.out.println(setAsString);
+      try {
+//        String primaryKey = this.getPrimaryKey(tableName);
+//        String id = row.getString(primaryKey);
+        StringBuilder updateQuery = new StringBuilder();
+        Iterator keys = row.keys();
+        while (keys.hasNext()) {
+          String currKey = (String) keys.next();
+          String val = row.getString(currKey);
+          String colEq = currKey +  " == " + "'" + val + "'" + " AND ";
+          updateQuery.append(colEq);
+        }
+        updateQuery.delete(updateQuery.length() - 4, updateQuery.length());
+        String modQuery = updateQuery.toString();
 
-      PreparedStatement update = conn.prepareStatement(
-          "UPDATE " + tableName + " SET " + setAsString + " WHERE " + primaryKey + " == " + id
-      );
-      update.executeUpdate();
-      System.out.println("Successfully updated database");
+        StringBuilder setQuery = new StringBuilder();
+        for (Map.Entry<String, String> dataPair : dataValues.entrySet()) {
+          String colName = dataPair.getKey();
+          String val = dataPair.getValue();
+          String setPair = colName + " = " + "'" + val + "',";
+          setQuery.append(setPair);
+        }
+        setQuery.deleteCharAt(setQuery.length() - 1);
+        String setAsString = setQuery.toString();
+        System.out.println(setAsString);
+
+        PreparedStatement update = conn.prepareStatement(
+            "UPDATE " + tableName + " SET " + setAsString + " WHERE " + modQuery
+        );
+        update.executeUpdate();
+        System.out.println("Successfully updated database");
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
     }
   }
 }
