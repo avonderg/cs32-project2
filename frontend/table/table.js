@@ -38,6 +38,13 @@ var loadButton = document.getElementById("loader");
 var dropdown = document.getElementById("dropdown");
 var table = document.getElementById("displayTable");
 var rowCount = 0;
+var addButton = document.getElementById("add");
+var deleteButton = document.getElementById("delete");
+var updateButton = document.getElementById("update");
+var tableData;
+deleteButton.addEventListener("click", deleteRow);
+addButton.addEventListener("click", addRow);
+updateButton.addEventListener("click", updateRow);
 fetch("http://localhost:4567/tableNames").then(function (res) { return res.json(); }).then(function (tableNames) { return updateDropdown(tableNames); });
 // updates dropdown menu as soon as table names are loaded from backend
 function updateDropdown(tableNames) {
@@ -51,7 +58,7 @@ loadButton.addEventListener("click", load);
 // on load click, gets the table specified by dropdown menu from backend and then updates table html
 function load() {
     return __awaiter(this, void 0, void 0, function () {
-        var tableNames, TablePostParams, res, tableData;
+        var tableNames, TablePostParams, res;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -71,6 +78,7 @@ function load() {
                     res = _a.sent();
                     return [4 /*yield*/, res.json()];
                 case 2:
+                    // fetches the table data for the loaded sql database and table specified by dropdown from backend
                     tableData = _a.sent();
                     // parses data to table 
                     updateTable(tableData);
@@ -79,7 +87,7 @@ function load() {
         });
     });
 }
-// updates the table specified by thte dropdown menu when load is clicked
+// updates the table specified by the dropdown menu when load is clicked
 function updateTable(tableData) {
     table.innerHTML = "";
     var headerRow = table.insertRow();
@@ -92,8 +100,10 @@ function updateTable(tableData) {
 // generates the html to insert the header row into the table
 function insertHeaders(headers, headerRow) {
     var map = new Map();
+    var rowID = headerRow.insertCell(0);
+    rowID.innerHTML = "row";
     for (var i = 0; i < headers.length; i++) {
-        var currCell = headerRow.insertCell(i);
+        var currCell = headerRow.insertCell(i + 1);
         currCell.innerHTML = headers[i];
         map.set(i, headers[i]);
     }
@@ -104,11 +114,14 @@ function insertHeaders(headers, headerRow) {
 function insertRows(table, rows, headerMap) {
     for (var i = 0; i < rows.length; i++) {
         var currRow = table.insertRow();
+        var rowID = currRow.insertCell(0);
+        var rowCellText = document.createTextNode(String(i));
+        rowID.appendChild(rowCellText);
         for (var _i = 0, _a = Array.from(headerMap.entries()); _i < _a.length; _i++) {
             var entry = _a[_i];
             var key = entry[0];
             var value = entry[1];
-            var currCell = currRow.insertCell(key);
+            var currCell = currRow.insertCell(key + 1);
             var currRecord = rows[i];
             // gets the value for the specified column header (in this row)
             console.log(currRecord);
@@ -119,4 +132,109 @@ function insertRows(table, rows, headerMap) {
             // puts the value intot the cell
         }
     }
+}
+function deleteRow() {
+    return __awaiter(this, void 0, void 0, function () {
+        var deleteInput, tableNames, deleteParams, res, updatedTableData;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    deleteInput = document.getElementById("delete_row");
+                    tableNames = document.getElementById("tableNames");
+                    deleteParams = {
+                        name: tableNames.value,
+                        row: tableData.rows[parseInt(deleteInput.value)]
+                    };
+                    return [4 /*yield*/, fetch("http://localhost:4567/delete", {
+                            method: 'post',
+                            body: JSON.stringify(deleteParams),
+                            headers: {
+                                'Content-Type': 'application/json; charset=UTF-8',
+                                "Access-Control-Allow-Origin": "*"
+                            }
+                        })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2:
+                    updatedTableData = _a.sent();
+                    // parses data to table
+                    updateTable(updatedTableData);
+                    tableData = updatedTableData;
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function addRow() {
+    return __awaiter(this, void 0, void 0, function () {
+        var addColumns, addValues, tableNames, addParams, res, updatedTableData;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    addColumns = document.getElementById("add_columns");
+                    addValues = document.getElementById("add_values");
+                    tableNames = document.getElementById("tableNames");
+                    addParams = {
+                        name: tableNames.value,
+                        columns: addColumns.value,
+                        values: addValues.value
+                    };
+                    return [4 /*yield*/, fetch("http://localhost:4567/add", {
+                            method: 'post',
+                            body: JSON.stringify(addParams),
+                            headers: {
+                                'Content-Type': 'application/json; charset=UTF-8',
+                                "Access-Control-Allow-Origin": "*"
+                            }
+                        })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2:
+                    updatedTableData = _a.sent();
+                    // parses data to table
+                    updateTable(updatedTableData);
+                    tableData = updatedTableData;
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function updateRow() {
+    return __awaiter(this, void 0, void 0, function () {
+        var updateRow, updateColumns, newValues, tableNames, updateParams, res, updatedTableData;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    updateRow = document.getElementById("update_row");
+                    updateColumns = document.getElementById("update_column");
+                    newValues = document.getElementById("new_value");
+                    tableNames = document.getElementById("tableNames");
+                    updateParams = {
+                        name: tableNames.value,
+                        row: tableData.rows[parseInt(updateRow.value)],
+                        columns: updateColumns.value,
+                        values: newValues.value
+                    };
+                    return [4 /*yield*/, fetch("http://localhost:4567/update", {
+                            method: 'post',
+                            body: JSON.stringify(updateParams),
+                            headers: {
+                                'Content-Type': 'application/json; charset=UTF-8',
+                                "Access-Control-Allow-Origin": "*"
+                            }
+                        })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2:
+                    updatedTableData = _a.sent();
+                    // parses data to table
+                    updateTable(updatedTableData);
+                    tableData = updatedTableData;
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
