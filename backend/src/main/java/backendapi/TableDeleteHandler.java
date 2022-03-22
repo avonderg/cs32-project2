@@ -22,30 +22,28 @@ public class TableDeleteHandler implements Route {
   @Override
   public String handle(Request req, Response res) {
     String tableName = "";
-    String primaryKey = "";
-    String primaryKeyValue = "";
-    JSONObject values = null;
+    JSONObject data = null;
+    JSONObject values;
 
     try {
       values = new JSONObject(req.body());
       tableName = values.getString("name");
-      primaryKey = values.getString("primaryKey");
-      primaryKeyValue = values.getString("primaryKeyValue");
+      data = values.getJSONObject("row");
     } catch (JSONException e) {
       e.printStackTrace();
     }
 
-    // TODO: Handle errors on the frontend
+//     TODO: Handle errors on the frontend
     try {
-      TableCommander.getDb().deleteRow(tableName, primaryKey, primaryKeyValue);
-      return GSON.toJson("Successfully deleted from the database");
+      TableCommander.getDb().deleteRow(tableName, data);
+      return GSON.toJson(TableCommander.getDb().getTable(tableName));
       // returns table
-    } catch (IllegalArgumentException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
-    } catch (SQLException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
+    } catch (IllegalArgumentException | SQLException e) {
+      try {
+        return GSON.toJson(TableCommander.getDb().getTable(tableName));
+      } catch (IllegalArgumentException | SQLException err) {
+        return GSON.toJson(err.getMessage());
+      }
     }
   }
 }
