@@ -28,7 +28,7 @@ public class Table {
 
   /**
    * Gets the headers of the table
-   * @return
+   * @return headers of the table
    */
   public List<String> getHeaders() {
     return ImmutableList.copyOf(headers);
