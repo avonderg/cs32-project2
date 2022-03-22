@@ -212,7 +212,7 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
     VOICE_SYNTH.cancel()
 
     await speak("There is a Button here that says " + (button.value || "nothing") +
-        " Click enter to interact with it. " +  "Click escape to resume.")
+        ". Click enter to interact with it. " +  "Click escape to resume.")
 
     return new Promise<void>((resolve) => {
         document.body.addEventListener("keyup", function(event) {

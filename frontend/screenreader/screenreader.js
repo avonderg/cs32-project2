@@ -116,10 +116,10 @@ function generateHandlers() {
 function pureTextHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         if (elt.tagName == "TITLE") {
-            yield speak("Title :" + elt.textContent);
+            yield speak("Title " + elt.textContent);
         }
         else if (elt.tagName == "LABEL") {
-            yield speak("Label :" + elt.textContent);
+            yield speak("Label " + elt.textContent);
         }
         else {
             yield speak(elt.textContent);
@@ -205,7 +205,7 @@ function buttonHandlers(elt) {
         });
         VOICE_SYNTH.cancel();
         yield speak("There is a Button here that says " + (button.value || "nothing") +
-            " Click enter to interact with it. " + "Click escape to resume.");
+            ". Click enter to interact with it. " + "Click escape to resume.");
         return new Promise((resolve) => {
             document.body.addEventListener("keyup", function (event) {
                 // Number 13 is the "Enter" key on the keyboard
