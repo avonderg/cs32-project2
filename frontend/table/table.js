@@ -39,14 +39,16 @@ var dropdown = document.getElementById("dropdown");
 var table = document.getElementById("displayTable");
 var rowCount = 0;
 fetch("http://localhost:4567/tableNames").then(function (res) { return res.json(); }).then(function (tableNames) { return updateDropdown(tableNames); });
+// updates dropdown menu as soon as table names are loaded from backend
 function updateDropdown(tableNames) {
     dropdown.innerHTML = "";
     dropdown.innerHTML += "<select name=\"tables\" id=\"tableNames\"></select>";
     var tableNamesElement = document.getElementById("tableNames");
     tableNames.forEach(function (table) { return tableNamesElement.innerHTML += "<option value=\"".concat(table, "\">").concat(table, "</option>"); });
-    console.log(tableNames);
+    // added all the table names to the drop down menu
 }
 loadButton.addEventListener("click", load);
+// on load click, gets the table specified by dropdown menu from backend and then updates table html
 function load() {
     return __awaiter(this, void 0, void 0, function () {
         var tableNames, TablePostParams, res, tableData;
@@ -70,22 +72,24 @@ function load() {
                     return [4 /*yield*/, res.json()];
                 case 2:
                     tableData = _a.sent();
-                    console.log(tableData);
+                    // parses data to table 
                     updateTable(tableData);
                     return [2 /*return*/];
             }
         });
     });
 }
+// updates the table specified by thte dropdown menu when load is clicked
 function updateTable(tableData) {
     table.innerHTML = "";
     var headerRow = table.insertRow();
     var headerMap = insertHeaders(tableData.headers, headerRow);
+    // returns map from column index to header so that can insert row data at appropriate positions
     console.log(headerMap);
     console.log(tableData.rows);
     insertRows(table, tableData.rows, headerMap);
-    console.log("REACHED HERE");
 }
+// generates the html to insert the header row into the table
 function insertHeaders(headers, headerRow) {
     var map = new Map();
     for (var i = 0; i < headers.length; i++) {
@@ -94,7 +98,9 @@ function insertHeaders(headers, headerRow) {
         map.set(i, headers[i]);
     }
     return map;
+    // returns map from column index to header 
 }
+// generates the html to insert rows into the table
 function insertRows(table, rows, headerMap) {
     for (var i = 0; i < rows.length; i++) {
         var currRow = table.insertRow();
@@ -104,11 +110,13 @@ function insertRows(table, rows, headerMap) {
             var value = entry[1];
             var currCell = currRow.insertCell(key);
             var currRecord = rows[i];
+            // gets the value for the specified column header (in this row)
             console.log(currRecord);
             console.log(key);
             console.log(currRecord[value]);
             var cellText = document.createTextNode(currRecord[value]);
             currCell.appendChild(cellText);
+            // puts the value intot the cell
         }
     }
 }
