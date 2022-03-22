@@ -67,9 +67,7 @@ public final class Main {
     if (options.has("gui")) {
       runSparkServer((int) options.valueOf("port"));
     }
-
     runREPL();
-
   }
 
   /**
