@@ -1,7 +1,7 @@
 package edu.brown.cs.student.main;
 
 
-import database_loader.TableCommander;
+import databaseloader.TableCommander;
 import recommender.RecommenderCommander;
 import database.DatabaseCommander;
 

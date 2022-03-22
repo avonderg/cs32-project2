@@ -1,26 +1,23 @@
-package database_loader;
+package databaseloader;
 
 
 import database.DatabaseCommander;
-import database.DatabaseProxy;
-import database.Permission;
 import edu.brown.cs.student.main.CommandAcceptor;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class TableCommander implements CommandAcceptor {
-  private static Connection conn = null;
-  public static TableLoader db = null;
+  private final Connection conn = null;
+  private static TableLoader db = null;
+  /**
+   * retrieves the TableLoader associated with this class.
+   * @return the TableLoader field
+   */
+  public static TableLoader getDb() {
+    return db;
+  }
 
   /**
    * function that handles commands associated with the database.
@@ -35,7 +32,7 @@ public class TableCommander implements CommandAcceptor {
         }
         try {
           db = new TableLoader(input[1]);
-          System.out.println(TableLoader.getTableNames());
+          System.out.println(db.getTableNames());
         } catch (SQLException e) {
           System.out.println("ERROR: Could not connect to database");
         } catch (ClassNotFoundException e) {
@@ -50,8 +47,10 @@ public class TableCommander implements CommandAcceptor {
           System.out.println("ERROR: You need to instantiate a database");
           break;
         }
-        // TODO: SAVED THIS FOR YOU NEIL <3
-        return;
+        break;
+      default:
+        System.out.println("ERROR: invalid command");
+        break;
     }
   }
 

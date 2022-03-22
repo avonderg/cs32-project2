@@ -1,4 +1,4 @@
-package database_loader;
+package databaseloader;
 
 import com.google.common.collect.ImmutableList;
 
@@ -27,11 +27,11 @@ public class Table {
   }
 
   /**
-   * Gets the headers of the table
-   * @return headers of the table
+   * Gets the headers of the table.
+   * @return a list of strings representing the headers of the table
    */
   public List<String> getHeaders() {
     return ImmutableList.copyOf(headers);
-    // defensive immutable proxy -- should check that works lmao
+    // defensive immutable proxy -- should check that works
   }
 }

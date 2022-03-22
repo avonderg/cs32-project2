@@ -4,13 +4,14 @@ package edu.brown.cs.student.main;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
+import backendapi.TableDeleteHandler;
+import backendapi.TableHandler;
+import backendapi.TableInsertHandler;
+import backendapi.TableNameHandler;
+import backendapi.TableUpdateHandler;
 import com.google.gson.Gson;
-import database_loader.TableCommander;
-import database_loader.TableLoader;
+import databaseloader.TableCommander;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import spark.Request;
@@ -109,85 +110,12 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
 
     Spark.post("/table", new TableHandler());
+    Spark.post("/add", new TableInsertHandler());
+    Spark.post("/delete", new TableDeleteHandler());
+    Spark.post("/update", new TableUpdateHandler());
+
     Spark.get("/tableNames", new TableNameHandler());
 
     Spark.init();
-  }
-
-
-
-  // TODO: MOVE TO OWN CLASS
-
-  /**
-   * Class that handles any POST request to the /table endpoint.
-   * @author Suraj Anand
-   */
-  private class TableHandler implements Route {
-    private final Gson GSON = new Gson();
-
-    /**
-     * Handles a request to spark backend server and this route.
-     * @param req spark request (handled in typescript)
-     * @param res spark response (handled in typescript)
-     * @return String representing JSON object
-     */
-    @Override
-    public String handle(Request req, Response res) {
-      String tableName = "";
-      JSONObject values = null;
-
-      try {
-        values = new JSONObject(req.body());
-        tableName = values.getString("name");
-      } catch (JSONException e) {
-        e.printStackTrace();
-      }
-
-      // TODO: Handle errors on the frontend
-      try {
-        return GSON.toJson(TableCommander.db.getTable(tableName));
-        // returns table
-      } catch (IllegalArgumentException e) {
-        return GSON.toJson(e.getMessage());
-        // returns error message
-      } catch (SQLException e) {
-        return GSON.toJson(e.getMessage());
-        // returns error message
-      }
-    }
-  }
-
-  // TODO: MOVE TO OWN CLASS
-  /**
-   * Class that handles any GET request to the /tableNames endpoint.
-   * @author Suraj Anand
-   */
-  private class TableNameHandler implements Route {
-    /**
-     * Creates a new GSON to create Json String from Object.
-     */
-    private final Gson GSON = new Gson();
-
-    /**
-     * Handles a request to spark backend server and this route.
-     * @param req spark request (handled in typescript)
-     * @param res spark response (handled in typescript)
-     * @return String representing JSON object
-     */
-    @Override
-    public String handle(Request req, Response res) {
-
-      // TODO: Handle errors on the frontend
-      try {
-        return GSON.toJson(TableCommander.db.getTableNames());
-        // returns table names
-      } catch (IllegalStateException e) {
-        return GSON.toJson(e.getMessage());
-        // returns error
-      } catch (SQLException e) {
-        return GSON.toJson(e.getMessage());
-        // returns error
-      }
-    }
   }
 }
