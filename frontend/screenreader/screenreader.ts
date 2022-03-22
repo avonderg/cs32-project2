@@ -130,9 +130,9 @@ async function pureTextHandlers(elt : HTMLElement): Promise<void> {
  */
 async function imgHandlers(e: HTMLElement): Promise<void> {
     if ((e as HTMLImageElement).alt != "") {
-        await speak((e as HTMLImageElement).alt as string)
+        await speak("This is a picture of " + (e as HTMLImageElement).alt as string)
     } else {
-        await speak("Image")
+        await speak("There is a picture here")
     }
 }
 
@@ -175,7 +175,7 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
     VOICE_SYNTH.cancel()
 
     await speak("There is an input of type \""
-        + (elt as HTMLInputElement).type +" \" here. Click enter to interact with it. CLick escape to resume")
+        + (elt as HTMLInputElement).type +" \" here. Click enter to interact with it. Click escape to resume")
 
     return new Promise<void>((resolve) => {
         document.body.addEventListener("keyup", function(event) {
