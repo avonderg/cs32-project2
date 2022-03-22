@@ -1,5 +1,8 @@
 package databaseloader;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -169,21 +172,46 @@ public class TableLoader {
     }
   }
 
-  public void deleteRow(String tableName, String primaryKey, String id)
+  private String getPrimaryKey(String tableName) throws SQLException, IllegalArgumentException {
+    ResultSet getPKResSet = runCommand(
+        "SELECT K.COLUMN_NAME FROM "
+            + "INFORMATION_SCHEMA.TABLE_CONSTRAINTS T "
+            + "JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE K "
+            + "ON K.CONSTRAINT_NAME=T.CONSTRAINT_NAME "
+            + "WHERE K.TABLE_NAME='" + tableName + "' "
+            + "AND K.TABLE_SCHEMA='sqlite_master' "
+            + "AND T.CONSTRAINT_TYPE='PRIMARY KEY' LIMIT 1;"
+    );
+    String primaryKeyCol = "";
+    while (getPKResSet.next()) {
+      primaryKeyCol = getPKResSet.getString(1);
+    }
+    return primaryKeyCol;
+  }
+
+  public void deleteRow(String tableName, JSONObject row)
       throws SQLException, IllegalArgumentException {
     if (checkValidTable(tableName)) {
       // Prepare a statement to delete the row from the table.
-      PreparedStatement deletion = conn.prepareStatement(
-          "DELETE FROM " + tableName + " WHERE " + primaryKey + " == " + id);
-      deletion.executeUpdate();
-      System.out.println("Successfully deleted from database");
+      try {
+        String primaryKeyCol = this.getPrimaryKey(tableName);
+        String id = row.getString(primaryKeyCol);
+        PreparedStatement deletion = conn.prepareStatement(
+            "DELETE FROM " + tableName + " WHERE " + primaryKeyCol + " == " + id);
+        deletion.executeUpdate();
+        System.out.println("Successfully deleted from database");
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
     }
   }
 
-  public void updateRow(String tableName, String primaryKey, String id,
+  public void updateRow(String tableName, Map<String, String> row,
                                Map<String, String> dataValues)
       throws SQLException, IllegalArgumentException {
     if (checkValidTable(tableName)) {
+      String primaryKey = this.getPrimaryKey(tableName);
+      String id = row.get(primaryKey);
       StringBuilder setQuery = new StringBuilder();
       for (Map.Entry<String, String> dataPair : dataValues.entrySet()) {
         String colName = dataPair.getKey();

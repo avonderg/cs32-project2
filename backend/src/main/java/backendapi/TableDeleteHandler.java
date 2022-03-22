@@ -1,6 +1,7 @@
 package backendapi;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import databaseloader.TableCommander;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,6 +10,8 @@ import spark.Response;
 import spark.Route;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TableDeleteHandler implements Route {
   private static final Gson GSON = new Gson();
@@ -22,28 +25,23 @@ public class TableDeleteHandler implements Route {
   @Override
   public String handle(Request req, Response res) {
     String tableName = "";
-    String primaryKey = "";
-    String primaryKeyValue = "";
-    JSONObject values = null;
+    JSONObject data = null;
+    JSONObject values;
 
     try {
       values = new JSONObject(req.body());
       tableName = values.getString("name");
-      primaryKey = values.getString("primaryKey");
-      primaryKeyValue = values.getString("primaryKeyValue");
+      data = values.getJSONObject("row");
     } catch (JSONException e) {
       e.printStackTrace();
     }
 
-    // TODO: Handle errors on the frontend
+//     TODO: Handle errors on the frontend
     try {
-      TableCommander.getDb().deleteRow(tableName, primaryKey, primaryKeyValue);
+      TableCommander.getDb().deleteRow(tableName, data);
       return GSON.toJson("Successfully deleted from the database");
       // returns table
-    } catch (IllegalArgumentException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
-    } catch (SQLException e) {
+    } catch (IllegalArgumentException | SQLException e) {
       return GSON.toJson(e.getMessage());
       // returns error message
     }
