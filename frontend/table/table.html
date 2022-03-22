@@ -3,6 +3,13 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Table</title>
+		<style>  
+			table, th, td {  
+				border: 2px solid black;  
+				border-collapse: collapse;  
+			}  
+			</style>
+			<link rel="stylesheet" href="table.css"> 
 	</head>
 
 	<body>
@@ -15,8 +22,49 @@
 		<div id="dropdown"></div>
 
 		<!-- Display your table here -->
-		<div id="content"></div>
+		<div id="content">
+			<table id="displayTable">
+			</table>
+
+		</div>
+
+		<div id="add">
+			<label for="add_input">Add: </label><br>
+			<input id="add_input"><br>
+		</div>
+
+		<div id="delete">
+			<label for="delete_input">Add: </label><br>
+			<input id="delete_input"><br>
+		</div>
+
+		<div id="update">
+			<label for="update_input">Add: </label><br>
+			<input id="update_input"><br>
+		</div>
+
+		<div id="batman">
+			<div class="inner-y">
+			  <div class="inner-b">
+				<div class="cut-lr"></div>
+				<div class="cut-rr"></div>
+				<div class="cut-bll"></div>
+				<div class="cut-brr"></div>
+				<div class="cut-blll"></div>
+				<div class="cut-bllr"></div>
+				<div class="cut-brll"></div>
+				<div class="cut-brlr"></div>
+				<div class="cut-hd"></div>
+				<div class="drw-hd-m"></div>
+				<div class="drw-hd-lt"></div>
+				<div class="drw-hd-rt"></div>
+			  </div>
+			</div>
+		  </div>
+
 	</body>
+
+
 
 	<script src = "./table.js"></script>
 </html>

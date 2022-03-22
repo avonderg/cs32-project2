@@ -3,9 +3,24 @@ package edu.brown.cs.student.main;
 // look into using these imports for your REPL!
 
 import java.io.IOException;
+import java.sql.SQLException;
+
+import backendapi.TableDeleteHandler;
+import backendapi.TableHandler;
+import backendapi.TableInsertHandler;
+import backendapi.TableNameHandler;
+import backendapi.TableUpdateHandler;
+import com.google.gson.Gson;
+import databaseloader.TableCommander;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 import spark.Spark;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -53,9 +68,7 @@ public final class Main {
     if (options.has("gui")) {
       runSparkServer((int) options.valueOf("port"));
     }
-
     runREPL();
-
   }
 
   /**
@@ -75,5 +88,34 @@ public final class Main {
 
     // specify location of static resources (HTML, CSS, JS, images, etc.)
     Spark.externalStaticFileLocation("src/main/resources/static");
+
+
+    Spark.options("/*", (request, response) -> {
+      String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+      if (accessControlRequestHeaders != null) {
+        response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+      }
+
+      String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+
+      if (accessControlRequestMethod != null) {
+        response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+      }
+
+      return "OK";
+    });
+
+    // Allows requests from any domain (i.e., any URL). This makes development
+    // easier, but it’s not a good idea for deployment.
+    Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
+
+    Spark.post("/table", new TableHandler());
+    Spark.post("/add", new TableInsertHandler());
+    Spark.post("/delete", new TableDeleteHandler());
+    Spark.post("/update", new TableUpdateHandler());
+
+    Spark.get("/tableNames", new TableNameHandler());
+
+    Spark.init();
   }
 }

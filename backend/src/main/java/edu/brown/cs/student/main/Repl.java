@@ -1,6 +1,7 @@
 package edu.brown.cs.student.main;
 
 
+import databaseloader.TableCommander;
 import recommender.RecommenderCommander;
 import database.DatabaseCommander;
 
@@ -63,12 +64,14 @@ public class Repl {
    * Creates new commands to be added to the hashMap!
    */
   public void createNewCommands() {
+    // PROJECT 1
     recommenderCommander = new RecommenderCommander();
     BloomCommander bloomCommander = new BloomCommander(recommenderCommander);
     KDCommander kdCommander = new KDCommander(recommenderCommander);
     StarCommander starCommander = new StarCommander();
     APICommander apiCommander = new APICommander();
     DatabaseCommander dbCommander = new DatabaseCommander();
+
     createCommand("insert_bf", bloomCommander);
     createCommand("create_bf", bloomCommander);
     createCommand("query_bf", bloomCommander);
@@ -88,6 +91,12 @@ public class Repl {
     createCommand("load_db_horoscopes", dbCommander);
     createCommand("load_db_zoo", dbCommander);
     createCommand("query", dbCommander);
+
+
+    // PROJECT 2
+    TableCommander tableCommander = new TableCommander();
+    createCommand("load_db", tableCommander);
+
   }
 
   /**
@@ -97,7 +106,7 @@ public class Repl {
    */
   public void evaluateInput(String input) {
     try {
-      //split the input on spaces not in commas,
+      // split the input on spaces not in commas,
       // then get the first element which will be the command
       // REGEX logic from stack overflow post
       // https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-
