@@ -4,6 +4,7 @@ package databaseloader;
 import database.DatabaseCommander;
 import edu.brown.cs.student.main.CommandAcceptor;
 
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,24 +33,17 @@ public class TableCommander implements CommandAcceptor {
         }
         try {
           db = new TableLoader(input[1]);
-          System.out.println(db.getTableNames());
         } catch (SQLException e) {
           System.out.println("ERROR: Could not connect to database");
         } catch (ClassNotFoundException e) {
           System.out.println("ERROR: Class not found??");
+        } catch (IllegalArgumentException e) {
+          System.out.println(e.getMessage());
         }
+
         if (db != null) {
           System.out.println("Loaded database from file " + input[1]);
         }
-        break;
-      case "modify":
-        if (db == null) {
-          System.out.println("ERROR: You need to instantiate a database");
-          break;
-        }
-        break;
-      default:
-        System.out.println("ERROR: invalid command");
         break;
     }
   }

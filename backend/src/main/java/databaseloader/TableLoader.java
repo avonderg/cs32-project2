@@ -3,6 +3,7 @@ package databaseloader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -33,9 +34,26 @@ public class TableLoader {
    */
   public TableLoader(String filename)
       throws SQLException, ClassNotFoundException {
-    Class.forName("org.sqlite.JDBC");
+    try {
+      Class.forName("org.sqlite.JDBC");
+    } catch (ClassNotFoundException e) {
+      System.err.println("ERROR: System error, sqlite class doesn't exist");
+      System.exit(1);
+    }
+    // got this error message from will guo
+
+    if (filename == null || !filename.endsWith(".sqlite3")) {
+      throw new IllegalArgumentException("ERROR: Cannot connect to database.");
+    }
+    if (!(new File(filename)).exists()) {
+      throw new IllegalArgumentException("ERROR: File does not exist.");
+    }
+
     String urlToDB = "jdbc:sqlite:" + filename;
     conn = DriverManager.getConnection(urlToDB);
+
+    Statement stat = conn.createStatement();
+    stat.executeUpdate("PRAGMA foreign_keys=ON;");
   }
 
   /**
@@ -243,5 +261,19 @@ public class TableLoader {
         e.printStackTrace();
       }
     }
+  }
+
+  /**
+   * Closes a SQL connection (when not using this db anymore).
+   * @throws SQLException if cannot connect to db
+   */
+  public void closeConnection() throws SQLException {
+    if (conn == null) {
+      return;
+    }
+    if (!conn.isClosed()) {
+      conn.close();
+    }
+    conn = null;
   }
 }
