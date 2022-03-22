@@ -18,6 +18,24 @@ const dropdown : HTMLDivElement = document.getElementById("dropdown") as HTMLDiv
 const table : HTMLTableElement = document.getElementById("displayTable") as HTMLTableElement;
 let rowCount : number = 0;
 
+const addButton: HTMLButtonElement = document.getElementById("add") as HTMLButtonElement;
+const deleteButton: HTMLButtonElement = document.getElementById("delete") as HTMLButtonElement;
+const updateButton: HTMLButtonElement = document.getElementById("update") as HTMLButtonElement;
+
+addButton.addEventListener("")
+function addRow() : void {
+
+}
+
+
+function deleteRow() : void {
+
+}
+
+function updateRow() : void {
+
+}
+
 fetch("http://localhost:4567/tableNames").then((res : Response) => res.json()).then((tableNames: string[]) => updateDropdown(tableNames))
 
 // updates dropdown menu as soon as table names are loaded from backend
