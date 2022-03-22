@@ -95,6 +95,9 @@ function generateHandlers() {
         else if (htmlElt.tagName == "INPUT") {
             ELEMENT_HANDLERS[i] = [htmlElt, (x) => inputHandlers(x)];
         }
+        else if (htmlElt.tagName == "BUTTON") {
+            ELEMENT_HANDLERS[i] = [htmlElt, (x) => buttonHandlers(x)];
+        }
         else if (tableTags.indexOf(htmlElt.tagName) > -1) {
             ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)];
         }
@@ -143,15 +146,75 @@ function imgHandlers(e) {
  */
 function inputHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
+        let type = elt.type;
+        document.body.addEventListener("keypress", function (event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // trigger button element
+                elt.focus();
+                // differentiate between different types of inputs
+                if (type == "text") { // non-button input element
+                    let e = document.getElementById(current);
+                    if (e != null) {
+                        if (e.onfocus) {
+                            e.blur();
+                        }
+                        else {
+                            e.focus();
+                        }
+                    }
+                }
+                else if (type == "submit") { // submit button
+                    document.getElementById(current).click();
+                }
+                document.getElementById(current).click();
+            }
+        });
+        VOICE_SYNTH.cancel();
         yield speak("There is an input of type \""
-            + elt.type + " \" here. Click enter to interact with it.");
+            + elt.type + " \" here. Click enter to interact with it. CLick escape to resume");
+        return new Promise((resolve) => {
+            document.body.addEventListener("keyup", function (event) {
+                if (event.key === "Escape") {
+                    // Cancel the default action, if needed
+                    event.preventDefault();
+                    VOICE_SYNTH.cancel();
+                    // Trigger the button element with a click
+                    resolve();
+                }
+            });
+        });
+    });
+}
+/**
+ * Generates handler functions for button elements
+ * @param elt
+ */
+function buttonHandlers(elt) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let button = elt;
+        document.body.addEventListener("keypress", function (event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                document.getElementById(current).click();
+            }
+        });
+        VOICE_SYNTH.cancel();
+        yield speak("There is a Button here that says " + (button.value || "nothing") +
+            " Click enter to interact with it. " + "Click escape to resume.");
         return new Promise((resolve) => {
             document.body.addEventListener("keyup", function (event) {
                 // Number 13 is the "Enter" key on the keyboard
-                if (event.key === "Enter") {
+                if (event.key === "Escape") {
                     // Cancel the default action, if needed
                     event.preventDefault();
-                    // Trigger the button element with a click
+                    // cancel the current utterance and continue the readings
+                    console.log("RESOLVED");
+                    VOICE_SYNTH.cancel();
                     resolve();
                 }
             });
@@ -173,7 +236,20 @@ function linkHandlers(elt) {
                 window.open(elt.href);
             }
         });
-        yield speak(elt.textContent + ". There is a link here. Click enter to enter the link. Proceeding in. Three. Two. One");
+        yield speak(elt.textContent + ". There is a link here. Click enter to enter the link. Click escape to resume");
+        return new Promise((resolve) => {
+            document.body.addEventListener("keyup", function (event) {
+                // Number 82 is the "r" key on the keyboard
+                if (event.key === "Escape") {
+                    // Cancel the default action, if needed
+                    event.preventDefault();
+                    // cancel the current utterance and continue the readings
+                    console.log("RESOLVED");
+                    VOICE_SYNTH.cancel();
+                    resolve();
+                }
+            });
+        });
     });
 }
 /**
@@ -191,13 +267,13 @@ function tableHandlers(elt) {
 }
 /**
  * Function highlighting input HTML elements, to help partially-blind users recognize which section
- * is currently being read by the screen reader
- * @param text - text to highlight
+ * is currently being read by the screen reader. Highlights, and unhighlights, current and prev elements respectfully
  * @param elt - current element
  */
 function highlight(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         const prevElt = document.getElementById(prev);
+        // resets prev element's background color
         if (prevElt != null) {
             prevElt.style.background = document.body.style.backgroundColor || "#fff";
         }
