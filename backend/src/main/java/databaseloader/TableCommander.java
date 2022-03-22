@@ -9,9 +9,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class that handles the REPL commands for any table visualization related
+ * db loading as well as testing.
+ */
 public class TableCommander implements CommandAcceptor {
   private final Connection conn = null;
   private static TableLoader db = null;
+
   /**
    * retrieves the TableLoader associated with this class.
    * @return the TableLoader field
