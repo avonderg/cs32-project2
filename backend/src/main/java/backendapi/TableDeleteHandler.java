@@ -27,21 +27,27 @@ public class TableDeleteHandler implements Route {
 
     try {
       values = new JSONObject(req.body());
+      System.out.println(values);
       tableName = values.getString("name");
+      System.out.println("tablename: " + tableName);
       data = values.getJSONObject("row");
+      System.out.println(data);
     } catch (JSONException e) {
       e.printStackTrace();
     }
 
 //     TODO: Handle errors on the frontend
     try {
+      System.out.println("Deleting row");
       TableCommander.getDb().deleteRow(tableName, data);
       return GSON.toJson(TableCommander.getDb().getTable(tableName));
       // returns table
     } catch (IllegalArgumentException | SQLException e) {
       try {
+        System.out.println("ERROR: unable to delete from table");
         return GSON.toJson(TableCommander.getDb().getTable(tableName));
       } catch (IllegalArgumentException | SQLException err) {
+        System.out.println("ERROR: unable to delete from table invalid name or db");
         return GSON.toJson(err.getMessage());
       }
     }
