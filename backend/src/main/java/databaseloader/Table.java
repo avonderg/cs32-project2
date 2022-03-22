@@ -34,4 +34,20 @@ public class Table {
     return ImmutableList.copyOf(headers);
     // defensive immutable proxy -- should check that works
   }
+
+  /**
+   * Retrieves the number of rows in the table.
+   * @return the number of rows in the table.
+   */
+  public int getNumRows() {
+    return this.rows.size();
+  }
+  /**
+   * Prints the table.
+   */
+  public void printTable() {
+    for (Map<String, String> row : this.rows) {
+      System.out.println(row.toString());
+    }
+  }
 }
