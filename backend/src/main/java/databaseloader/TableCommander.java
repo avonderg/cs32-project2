@@ -18,6 +18,9 @@ public class TableCommander implements CommandAcceptor {
   public static TableLoader getDb() {
     return db;
   }
+  public static void setDb(TableLoader t) {
+    db = t;
+  }
 
   /**
    * function that handles commands associated with the database.

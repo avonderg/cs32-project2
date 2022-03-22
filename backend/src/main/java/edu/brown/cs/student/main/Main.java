@@ -1,27 +1,15 @@
 package edu.brown.cs.student.main;
 
 // look into using these imports for your REPL!
-
 import java.io.IOException;
-import java.sql.SQLException;
-
 import backendapi.TableDeleteHandler;
 import backendapi.TableHandler;
 import backendapi.TableInsertHandler;
 import backendapi.TableNameHandler;
 import backendapi.TableUpdateHandler;
-import com.google.gson.Gson;
-import databaseloader.TableCommander;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import spark.Request;
-import spark.Response;
-import spark.Route;
 import spark.Spark;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 
 /**
  * The Main class of our project. This is where execution begins.
