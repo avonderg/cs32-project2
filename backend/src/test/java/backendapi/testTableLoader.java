@@ -59,8 +59,8 @@ public class testTableLoader {
       Table added = TableCommander.getDb().getTable("tas");
       assertEquals(deletedLength+1, added.getNumRows());
 
-      String timeTa = "{\"name\":\"Time\",\"id\":\"1\",\"role\":\"UTA\"}";
-      JSONObject timJson = new JSONObject(timeTa);
+      String timTa = "{\"name\":\"Tim\",\"id\":\"1\",\"role\":\"UTA\"}";
+      JSONObject timJson = new JSONObject(timTa);
       Map<String, String> updateVals = new HashMap<>();
       updateVals.put("role", "Professor");
       TableCommander.getDb().updateRow("tas", timJson, updateVals);
