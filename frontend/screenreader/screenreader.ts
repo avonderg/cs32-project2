@@ -8,12 +8,13 @@ let VOICE_RATE: number = 1;
 // Stores elements and their handler functions
 // Think of an appropriate data structure to do this
 // Assign this variable in mapPage()
-let ELEMENT_HANDLERS: {[key: number]: [HTMLElement, (arg0: HTMLElement) => void]} = {};
+let ELEMENT_HANDLERS: {[key: number]: [HTMLElement, (arg0: HTMLElement) =>  Promise<void>]} = {};
 
 // Indicates the current element that the user is on
 // You can decide the type of this variable
-let current: string; // corresponds to ID of the element
-
+let currentIndex: number; // corresponds to ID of the element
+let current: string;
+let prev: string // ID of previous
 
 /**
  * Speaks out text.
@@ -36,11 +37,7 @@ function speak(text: string) {
 
         console.log("Rate: " + utterance.rate)
         return new Promise<void>((resolve) => {
-            window.setInterval(() => {
-                if (!VOICE_SYNTH.speaking) {
-                    resolve()
-                }
-            }, 100)
+            utterance.onend = () => resolve()
         })
     }
 }
@@ -59,9 +56,9 @@ window.onload = () => {
 
     VOICE_SYNTH = window.speechSynthesis;
 
-    // need to get the buttons
-    // screen reader button click events
-    const buttons = document.getElementById("screenReader")!.getElementsByTagName("button")
+    // screen reader button events
+    const buttons = document.getElementById("screenReader")!.getElementsByTagName("button");
+
     buttons[0]!.addEventListener("click", (event) => start("0"));
     buttons[1]!.addEventListener("click", function(){
         if (VOICE_SYNTH.paused) { resume(); }
@@ -81,16 +78,14 @@ function generateHandlers(): void {
     // gets HTML elements
     const collection : HTMLCollectionOf<Element> = document.getElementsByTagName("*");
 
-    // iterates through all DOM elements
-    for (var i=0; i<collection.length; i++){
-        const htmlElt = collection[i] as HTMLElement
+    // iterate through all elements in DOM
+    let i = 0;
+    for (let e of collection as any){
+        const htmlElt = e as HTMLElement
         let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
         let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
 
-        // assigns an id to each element
-        htmlElt.id = String(i);
-
-        // stores elements and corresponding handlers in global ELEMENT_HANDLERS
+        // store elements and associated handlers in ELEMENT_HANDLERS
         if (textTags.indexOf(htmlElt.tagName) > -1) {
             ELEMENT_HANDLERS[i] = [htmlElt, (x) => pureTextHandlers(x)]
         } else if (htmlElt.tagName == "IMG") {
@@ -101,7 +96,13 @@ function generateHandlers(): void {
             ELEMENT_HANDLERS[i] = [htmlElt, (x) => inputHandlers(x)]
         } else if (tableTags.indexOf(htmlElt.tagName) > -1) {
             ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
+        } else {
+            continue;
         }
+
+        // assign element an id
+        htmlElt.id = String(i);
+        i = i+1
     }
 }
 
@@ -109,13 +110,13 @@ function generateHandlers(): void {
  * Generates handler functions for text elements
  * @param elt: HTMLElement input
  */
-function pureTextHandlers(elt : HTMLElement): void {
+async function pureTextHandlers(elt : HTMLElement): Promise<void> {
     if (elt.tagName == "TITLE") {
-        speak("Title :" + (elt.textContent as string))
+        await speak("Title :" + (elt.textContent as string))
     } else if (elt.tagName == "LABEL"){
-        speak("Label :" + (elt.textContent as string))
+        await speak("Label :" + (elt.textContent as string))
     } else {
-        speak((elt.textContent as string))
+        await speak((elt.textContent as string))
     }
 }
 
@@ -123,55 +124,60 @@ function pureTextHandlers(elt : HTMLElement): void {
  * Generates handler functions for image elements
  * @param elt: HTMLElement input
  */
-function imgHandlers(elt: HTMLElement): void {
-    speak((elt as HTMLImageElement).alt as string)
+async function imgHandlers(e: HTMLElement): Promise<void> {
+    if ((e as HTMLImageElement).alt != "") {
+        await speak((e as HTMLImageElement).alt as string)
+    } else {
+        await speak("Image")
+    }
 }
 
 /**
  * Generates handler functions for input elements
  * @param elt: HTMLElement input
  */
-function inputHandlers(elt: HTMLElement): void {
-    speak("There is an input of type \""
+async function inputHandlers(elt: HTMLElement): Promise<void> {
+    await speak("There is an input of type \""
         + (elt as HTMLInputElement).type +" \" here. Click enter to interact with it.")
-    document.body.addEventListener("keyup", function(event) {
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.key === "enter") {
-            // Cancel the default action, if needed
-            event.preventDefault();
-            // Trigger the button element with a click
-            resume();
-        }
-    });
-    pause();
+
+    return new Promise<void>((resolve) => {
+        document.body.addEventListener("keyup", function(event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                resolve();
+            }
+        });
+    })
 }
 
 /**
  * Generates handler functions for link elements
  * @param elt: HTMLElement input
  */
-function linkHandlers(elt: HTMLElement): void {
+async function linkHandlers(elt: HTMLElement): Promise<void> {
     document.body.addEventListener("keyup", function(event) {
         // Number 13 is the "Enter" key on the keyboard
-        if (event.key === "enter") {
+        if (event.key === "Enter") {
             // Cancel the default action, if needed
             event.preventDefault();
             // Trigger the button element with a click
             window.open((elt as HTMLLinkElement).href);
         }
     });
-    speak("link: " + elt.textContent +
-        "Click enter to open the link. Click r to resume");
+    await speak(elt.textContent + ". There is a link here. Click enter to enter the link. Proceeding in. Three. Two. One")
 }
 
 /**
  * Generates handler functions for table elements
  * @param elt:  HTMLElement input
  */
-function tableHandlers(elt: HTMLElement): void {
+async function tableHandlers(elt: HTMLElement): Promise<void> {
     if (elt.tagName == "CAPTION" || elt.tagName == "TH" || elt.tagName === "TD"){
         if (elt.children.length<0) {
-            speak(elt.textContent as string)
+            await speak(elt.textContent as string)
         }
     }
 }
@@ -182,34 +188,17 @@ function tableHandlers(elt: HTMLElement): void {
  * @param text - text to highlight
  * @param elt - current element
  */
-function highlight(elt: Element): void{
-    // // var inputText = elt.innerHTML
-    // //
-    // // var index = inputText.indexOf(text);
-    // // if (index >= 0) {
-    // //     inputText = inputText.substring(0, index) + "<span class='highlight'>" + inputText.substring(index, index + text.length) + "</span>" + inputText.substring(index + text.length);
-    // //     elt.innerHTML = inputText;
-    // // }
-    // var element = <HTMLElement> elt;
-    // element.style.backgroundColor = '2px solid yellow';
-    // return;
-    var body = document.getElementById("BODY")
-    var bodyColor;
-    if (body != null ){
-        bodyColor = body.style.color;
+async function highlight(elt: Element): Promise<void>{
+
+    const prevElt = document.getElementById(prev);
+
+    if ( prevElt != null) {
+        prevElt.style.background = document.body.style.backgroundColor || "#fff";
     }
 
-    // change style of previously selected value
-    var prev = document.getElementById(String(+elt.id-1));
-    if(prev != null){
-        prev.style.background = bodyColor || "";
-        prev.style.color="#000";
-    }
-
-    var curr = document.getElementById(elt.id);
+    const curr = document.getElementById(elt.id);
     if( curr != null) {
-        curr.style.background = "#0098b2";
-        curr.style.color = "fff";
+        curr.style.background = "#fff8a6";
     }
 
 }
@@ -230,41 +219,62 @@ function changeVoiceRate(factor: number): void {
 /**
  * Moves to the next HTML element in the DOM.
  */
-function next() {
+async function next() {
+    console.log("TO NEXT");
     VOICE_SYNTH.cancel();
-    const next: number = +current+1;
-    const nextElt = ELEMENT_HANDLERS[next]
-    if ( nextElt != null) {
-        current = String(next);
-        start(String(next))
-    }
 }
 
 /**
  * Moves to the previous HTML element in the DOM.
  */
-function previous() {
+async function previous() {
+    console.log("TO PREVIOUS")
     VOICE_SYNTH.cancel();
-    const prev: number = +current-1;
-    const prevElt = ELEMENT_HANDLERS[prev]
-    if ( prevElt != null) {
-        current = String(prev)
-        start(String(prev))
+    // // const prev: number = +current-1;
+    // // const prevElt = ELEMENT_HANDLERS[prev]
+    // // if ( prevElt != null) {
+    // //     current = String(prev)
+    // //     await start(String(prev))
+    // // }
+    // // current = prev
+    // // await start(prev)
+    // currentIndex = currentIndex - 2
+    // for (currentIndex; currentIndex < Object.keys(ELEMENT_HANDLERS).length; currentIndex++) {
+    //     current = ELEMENT_HANDLERS[currentIndex]
+    //     await current[1](current[0])
+    // }
+    if( ELEMENT_HANDLERS[+prev-2] != null){
+        prev = String(+prev-2)
+    }
+    if( ELEMENT_HANDLERS[+current-2] != null){
+        VOICE_SYNTH.cancel();
+        // @ts-ignore
+        document.getElementById(current).style.background = document.body.style.backgroundColor || "#fff";
+        current = String(+current-2)
     }
 }
 
 /**
  * Starts reading the page continuously.
  */
-function start(curr: String) {
-    for (const elt in ELEMENT_HANDLERS) {
-        if (curr <= elt) {
-            current = elt;
-            const curElt = ELEMENT_HANDLERS[elt];
-            highlight(curElt[0]);
-            curElt[1](curElt[0])
-        }
+async function start(curr: String) {
+    console.log('Start');
+    let currentElement =  ELEMENT_HANDLERS[+current]
+
+    if (currentElement != null) {
+        console.log("ON " + current)
+        await highlight(currentElement[0])
+        await currentElement[1](currentElement[0])
+        prev = current
+        current = String(+current+1)
+        await start(current)
     }
+
+    // for (currentIndex = 0; currentIndex < Object.keys(ELEMENT_HANDLERS).length; currentIndex++) {
+    //     current = ELEMENT_HANDLERS[currentIndex]
+    //     await current[1](current[0])
+    // }
+    console.log('End');
 }
 
 /**
@@ -289,6 +299,7 @@ function globalKeystrokes(event: KeyboardEvent): void {
     // can change and add key mappings as needed
     if (event.key === " ") {
         event.preventDefault();
+        current = "0"
         start("0");
     } else if (event.key === "ArrowRight") {
         event.preventDefault();
@@ -298,6 +309,7 @@ function globalKeystrokes(event: KeyboardEvent): void {
         changeVoiceRate(0.9);
     }
     else if (event.key === "p") {
+        console.log(VOICE_SYNTH.paused);
         if (VOICE_SYNTH.paused) {  // if it is paused, then resume
             resume();
         }
