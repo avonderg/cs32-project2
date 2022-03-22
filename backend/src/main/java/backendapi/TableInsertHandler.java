@@ -35,10 +35,10 @@ public class TableInsertHandler implements Route {
       tableName = values.getString("name");
       columns = values.getString("columns");
       // splitting and trimming from https://stackoverflow.com/questions/41953388/java-split-and-trim-in-one-shot
-      String[] colsToAdd = Arrays.stream(columns.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1))
+      String[] colsToAdd = Arrays.stream(columns.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
           .map(String::trim).toArray(String[]::new);
       dataValues = values.getString("values");
-      String[] valsToAdd = Arrays.stream(dataValues.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1))
+      String[] valsToAdd = Arrays.stream(dataValues.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
           .map(String::trim).toArray(String[]::new);
       if (colsToAdd.length != valsToAdd.length) {
         return "ERROR: Column and value lengths do not match";

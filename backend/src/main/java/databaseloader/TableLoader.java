@@ -186,6 +186,7 @@ public class TableLoader {
     while (getPKResSet.next()) {
       primaryKeyCol = getPKResSet.getString(1);
     }
+    System.out.println(primaryKeyCol);
     return primaryKeyCol;
   }
 
