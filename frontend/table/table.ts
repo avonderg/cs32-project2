@@ -36,9 +36,9 @@ const dropdown : HTMLDivElement = document.getElementById("dropdown") as HTMLDiv
 const table : HTMLTableElement = document.getElementById("displayTable") as HTMLTableElement;
 let rowCount : number = 0;
 
-const addButton: HTMLButtonElement = document.getElementById("add") as HTMLButtonElement;
-const deleteButton: HTMLButtonElement = document.getElementById("delete") as HTMLButtonElement;
-const updateButton: HTMLButtonElement = document.getElementById("update") as HTMLButtonElement;
+const addButton: HTMLButtonElement = document.getElementById("addButton") as HTMLButtonElement;
+const deleteButton: HTMLButtonElement = document.getElementById("deleteButton") as HTMLButtonElement;
+const updateButton: HTMLButtonElement = document.getElementById("updateButton") as HTMLButtonElement;
 
 let tableData : Table;
 
