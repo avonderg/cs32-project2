@@ -1,7 +1,6 @@
 package backendapi;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import databaseloader.TableCommander;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,8 +9,6 @@ import spark.Response;
 import spark.Route;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TableDeleteHandler implements Route {
   private static final Gson GSON = new Gson();
@@ -39,11 +36,14 @@ public class TableDeleteHandler implements Route {
 //     TODO: Handle errors on the frontend
     try {
       TableCommander.getDb().deleteRow(tableName, data);
-      return GSON.toJson("Successfully deleted from the database");
+      return GSON.toJson(TableCommander.getDb().getTable(tableName));
       // returns table
     } catch (IllegalArgumentException | SQLException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
+      try {
+        return GSON.toJson(TableCommander.getDb().getTable(tableName));
+      } catch (IllegalArgumentException | SQLException err) {
+        return GSON.toJson(err.getMessage());
+      }
     }
   }
 }

@@ -206,28 +206,32 @@ public class TableLoader {
     }
   }
 
-  public void updateRow(String tableName, Map<String, String> row,
+  public void updateRow(String tableName, JSONObject row,
                                Map<String, String> dataValues)
       throws SQLException, IllegalArgumentException {
     if (checkValidTable(tableName)) {
-      String primaryKey = this.getPrimaryKey(tableName);
-      String id = row.get(primaryKey);
-      StringBuilder setQuery = new StringBuilder();
-      for (Map.Entry<String, String> dataPair : dataValues.entrySet()) {
-        String colName = dataPair.getKey();
-        String val = dataPair.getValue();
-        String setPair = colName + " = " + "'" + val + "',";
-        setQuery.append(setPair);
-      }
-      setQuery.deleteCharAt(setQuery.length() - 1);
-      String setAsString = setQuery.toString();
-      System.out.println(setAsString);
+      try {
+        String primaryKey = this.getPrimaryKey(tableName);
+        String id = row.getString(primaryKey);
+        StringBuilder setQuery = new StringBuilder();
+        for (Map.Entry<String, String> dataPair : dataValues.entrySet()) {
+          String colName = dataPair.getKey();
+          String val = dataPair.getValue();
+          String setPair = colName + " = " + "'" + val + "',";
+          setQuery.append(setPair);
+        }
+        setQuery.deleteCharAt(setQuery.length() - 1);
+        String setAsString = setQuery.toString();
+        System.out.println(setAsString);
 
-      PreparedStatement update = conn.prepareStatement(
-          "UPDATE " + tableName + " SET " + setAsString + " WHERE " + primaryKey + " == " + id
-      );
-      update.executeUpdate();
-      System.out.println("Successfully updated database");
+        PreparedStatement update = conn.prepareStatement(
+            "UPDATE " + tableName + " SET " + setAsString + " WHERE " + primaryKey + " == " + id
+        );
+        update.executeUpdate();
+        System.out.println("Successfully updated database");
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
     }
   }
 }

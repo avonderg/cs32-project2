@@ -1,8 +1,6 @@
 package backendapi;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import databaseloader.Table;
 import databaseloader.TableCommander;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,11 +23,11 @@ public class TableInsertHandler implements Route {
    * @return String representing JSON object
    */
   @Override
-  public Table handle(Request req, Response res) {
+  public String handle(Request req, Response res) {
     String tableName = "";
     String columns = "";
     String dataValues = "";
-    Map<String, String> dataMap = null;
+    Map<String, String> dataMap = new HashMap<>();
     JSONObject values;
 
     try {
@@ -45,21 +43,24 @@ public class TableInsertHandler implements Route {
       if (colsToAdd.length != valsToAdd.length) {
         return "ERROR: Column and value lengths do not match";
       }
+      for (int i = 0; i < colsToAdd.length; i++) {
+        dataMap.put(colsToAdd[i], valsToAdd[i]);
+      }
     } catch (JSONException e) {
-      e.printStackTrace();
+      return GSON.toJson(e.getMessage());
     }
 
 //     TODO: Handle errors on the frontend
     try {
       TableCommander.getDb().addData(tableName, dataMap);
-      return GSON.toJson("Successfully inserted data into the database");
+      return GSON.toJson(TableCommander.getDb().getTable(tableName));
       // returns table
-    } catch (IllegalArgumentException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
-    } catch (SQLException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
+    } catch (IllegalArgumentException | SQLException e) {
+      try {
+        return GSON.toJson(TableCommander.getDb().getTable(tableName));
+      } catch (IllegalArgumentException | SQLException err) {
+        return GSON.toJson(err.getMessage());
+      }
     }
   }
 }
