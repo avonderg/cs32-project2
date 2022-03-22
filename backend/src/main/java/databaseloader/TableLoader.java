@@ -158,7 +158,7 @@ public class TableLoader {
       System.out.println(values);
       columns.delete(columns.length() - 2, columns.length());
       columns.append(")");
-      values.delete(values.length() - 2, columns.length());
+      values.delete(values.length() - 2, values.length());
       values.append(")");
 
       String colsToInsert = columns.toString();
@@ -174,24 +174,6 @@ public class TableLoader {
       stmt.executeUpdate(insertQuery);
       System.out.println("Successfully inserted into database");
     }
-  }
-
-  private String getPrimaryKey(String tableName) throws SQLException, IllegalArgumentException {
-    ResultSet getPKResSet = runCommand(
-        "SELECT K.COLUMN_NAME FROM "
-            + "INFORMATION_SCHEMA.TABLE_CONSTRAINTS T "
-            + "JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE K "
-            + "ON K.CONSTRAINT_NAME=T.CONSTRAINT_NAME "
-            + "WHERE K.TABLE_NAME='" + tableName + "' "
-            + "AND K.TABLE_SCHEMA='sqlite_master' "
-            + "AND T.CONSTRAINT_TYPE='PRIMARY KEY' LIMIT 1;"
-    );
-    String primaryKeyCol = "";
-    while (getPKResSet.next()) {
-      primaryKeyCol = getPKResSet.getString(1);
-    }
-    System.out.println("Primary key column: " +  primaryKeyCol);
-    return primaryKeyCol;
   }
 
   public void deleteRow(String tableName, JSONObject row)
