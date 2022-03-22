@@ -116,9 +116,9 @@ function generateHandlers(): void {
  */
 async function pureTextHandlers(elt : HTMLElement): Promise<void> {
     if (elt.tagName == "TITLE") {
-        await speak("Title :" + (elt.textContent as string))
+        await speak("Title " + (elt.textContent as string))
     } else if (elt.tagName == "LABEL"){
-        await speak("Label :" + (elt.textContent as string))
+        await speak("Label " + (elt.textContent as string))
     } else {
         await speak((elt.textContent as string))
     }
