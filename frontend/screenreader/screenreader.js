@@ -133,10 +133,10 @@ function pureTextHandlers(elt) {
 function imgHandlers(e) {
     return __awaiter(this, void 0, void 0, function* () {
         if (e.alt != "") {
-            yield speak(e.alt);
+            yield speak("This is a picture of " + e.alt);
         }
         else {
-            yield speak("Image");
+            yield speak("There is a picture here");
         }
     });
 }
@@ -174,7 +174,7 @@ function inputHandlers(elt) {
         });
         VOICE_SYNTH.cancel();
         yield speak("There is an input of type \""
-            + elt.type + " \" here. Click enter to interact with it. CLick escape to resume");
+            + elt.type + " \" here. Click enter to interact with it. Click escape to resume");
         return new Promise((resolve) => {
             document.body.addEventListener("keyup", function (event) {
                 if (event.key === "Escape") {
