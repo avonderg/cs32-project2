@@ -286,7 +286,7 @@ async function highlight(elt: Element): Promise<void>{
 
     // resets prev element's background color
     if ( prevElt != null) {
-        prevElt.style.background = document.body.style.backgroundColor || "#fff";
+        prevElt.style.background = document.body.style.backgroundColor || "#0000ffff";
     }
 
     const curr = document.getElementById(elt.id);
