@@ -10,6 +10,10 @@ import spark.Route;
 
 import java.sql.SQLException;
 
+/**
+ * class that implements the Route interface to handle deletion from a table.
+ * @author neilxu
+ */
 public class TableDeleteHandler implements Route {
   private static final Gson GSON = new Gson();
 
@@ -26,19 +30,16 @@ public class TableDeleteHandler implements Route {
     JSONObject values;
 
     try {
+      // getting the inputs to the deleteRow method
       values = new JSONObject(req.body());
-      System.out.println(values);
       tableName = values.getString("name");
-      System.out.println("tablename: " + tableName);
       data = values.getJSONObject("row");
-      System.out.println(data);
     } catch (JSONException e) {
       e.printStackTrace();
     }
 
-//     TODO: Handle errors on the frontend
     try {
-      System.out.println("Deleting row");
+      // deleting the row from the database
       TableCommander.getDb().deleteRow(tableName, data);
       return GSON.toJson(TableCommander.getDb().getTable(tableName));
       // returns table

@@ -28,12 +28,6 @@ public class testTableLoader {
       Table horoscopeTable = TableCommander.getDb().getTable("horoscopes");
       assertEquals(2, horoscopeTable.getHeaders().size());
 
-//      Map<String, String> dataValues = new HashMap<>();
-//      dataValues.put("name", "Tim");
-//      dataValues.put("id", "1");
-//      dataValues.put("role", "Professor");
-//      TableCommander.getDb().addData("tas", dataValues);
-
       Table taTable = TableCommander.getDb().getTable("tas");
       taTable.printTable();
       assertEquals(3, taTable.getHeaders().size());

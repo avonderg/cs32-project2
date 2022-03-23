@@ -13,6 +13,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * class that implements the Route interface to handle updating a table.
+ * @author neilxu
+ */
 public class TableUpdateHandler implements Route {
   private static final Gson GSON = new Gson();
 
@@ -25,8 +29,8 @@ public class TableUpdateHandler implements Route {
   @Override
   public String handle(Request req, Response res) {
     String tableName = "";
-    String columns = "";
-    String dataValues = "";
+    String columns;
+    String dataValues;
     Map<String, String> dataMap = new HashMap<>();
     JSONObject values;
     JSONObject data = null;
@@ -45,6 +49,7 @@ public class TableUpdateHandler implements Route {
       if (colsToAdd.length != valsToAdd.length) {
         return "ERROR: Column and value lengths do not match";
       }
+      // creating a map of columns to values to update
       for (int i = 0; i < colsToAdd.length; i++) {
         dataMap.put(colsToAdd[i], valsToAdd[i]);
       }
@@ -52,11 +57,11 @@ public class TableUpdateHandler implements Route {
       e.printStackTrace();
     }
 
-//         TODO: Handle errors on the frontend
+    // create response type, wrap it. have the status code and the table
     try {
+      // updates the table
       TableCommander.getDb().updateRow(tableName, data, dataMap);
       return GSON.toJson(TableCommander.getDb().getTable(tableName));
-      // returns table
     } catch (IllegalArgumentException | SQLException e) {
       try {
         return GSON.toJson(TableCommander.getDb().getTable(tableName));

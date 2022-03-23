@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class that implements the Route interface to add data to the table.
+ */
 public class TableInsertHandler implements Route {
   private static final Gson GSON = new Gson();
 
@@ -24,9 +27,9 @@ public class TableInsertHandler implements Route {
    */
   @Override
   public String handle(Request req, Response res) {
-    String tableName = "";
-    String columns = "";
-    String dataValues = "";
+    String tableName;
+    String columns;
+    String dataValues;
     Map<String, String> dataMap = new HashMap<>();
     JSONObject values;
 
@@ -41,20 +44,21 @@ public class TableInsertHandler implements Route {
       String[] valsToAdd = Arrays.stream(dataValues.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1))
           .map(String::trim).toArray(String[]::new);
       if (colsToAdd.length != valsToAdd.length) {
-        return "ERROR: Column and value lengths do not match";
+        return GSON.toJson(TableCommander.getDb().getTable(tableName));
       }
+      // creating a column to add the table
       for (int i = 0; i < colsToAdd.length; i++) {
         dataMap.put(colsToAdd[i], valsToAdd[i]);
       }
-    } catch (JSONException e) {
+    } catch (JSONException | SQLException e) {
       return GSON.toJson(e.getMessage());
     }
 
-//     TODO: Handle errors on the frontend
     try {
+      // adds data to the table
       TableCommander.getDb().addData(tableName, dataMap);
+      // returns updated table
       return GSON.toJson(TableCommander.getDb().getTable(tableName));
-      // returns table
     } catch (IllegalArgumentException | SQLException e) {
       try {
         return GSON.toJson(TableCommander.getDb().getTable(tableName));
