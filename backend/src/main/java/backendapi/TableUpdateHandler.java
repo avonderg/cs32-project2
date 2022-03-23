@@ -53,6 +53,7 @@ public class TableUpdateHandler implements Route {
     }
 
 //         TODO: Handle errors on the frontend
+    // create response type, wrap it. have the status code and the table
     try {
       TableCommander.getDb().updateRow(tableName, data, dataMap);
       return GSON.toJson(TableCommander.getDb().getTable(tableName));
