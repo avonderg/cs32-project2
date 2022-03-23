@@ -1,8 +1,54 @@
-// got this from https://codepen.io/damienpm/pen/AqmjyV
+h1 {
+  font-family: 'Impact', sans-serif;
+}
+
+table, th{
+  border: 2px solid lightslategrey;
+  border-collapse: collapse;
+  width: 30%;
+  height: 100%;
+  text-align: left;
+  padding: 15px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 9999;
+  font-family: 'Impact', sans-serif;
+}
+
+td {
+  border: 2px solid lightslategrey;
+  border-collapse: collapse;
+  height: 100%;
+  text-align: left;
+  padding: 15px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Impact', sans-serif;
+}
+
+th {
+  background-color: lightslategray;
+  color: yellow
+}
+
+tr {
+  background-color: white;
+  opacity: 30%
+}
+
+tr:hover {
+  background-color: yellow;
+  opacity: 30%
+}
+
+
 body {
   margin:0;
   padding:0;
   background-color:#98a4a6;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #batman {
@@ -12,6 +58,8 @@ body {
   margin:-100px 0px 0px -175px;
   width:350px;
   height:200px;
+  z-index: -9999;
+  opacity: 30%;
   background-color:#111;
   border-radius: 175px / 100px;
 }

@@ -1,17 +1,13 @@
 <!DOCTYPE html>
+
+
 <html>
 	<head>
 		<meta charset="utf-8">
 		<title>Table</title>
-		<style>  
-			table, th, td {  
-				border: 2px solid black;  
-				border-collapse: collapse;  
-			}  
-			</style>
-			<link rel="stylesheet" href="table.css">
+			<link rel="stylesheet" href="table.css"> 
 	</head>
-
+	
 	<body>
 	<h1 style="font-size: 0">Dahna nana     dahna nana bat mannnnnn</h1>
 
@@ -21,7 +17,10 @@
 		<button id="loader" value="Load data">Load data</button>
 		
 		<!-- Create a dropdown here to choose between tables -->
-		<div id="dropdown"></div>
+		<div id="dropdown">
+			<select name="tables" id="tableNames"></select>
+
+		</div>
 
 		<!-- Display your table here -->
 		<div id="content">
@@ -89,9 +88,7 @@
 			  </div>
 			</div>
 		  </div>
-
-	</body>
-
-	<script src = "./table.js"></script>
-<!--	<script type="text/javascript" src = "../screenreader/screenreader.js"></script>-->
+		</body>
+	<script type="text/javascript" src = "./screenreader.js"></script>
+	<script src = "./table.js" defer></script>
 </html>

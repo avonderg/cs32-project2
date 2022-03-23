@@ -23,5 +23,6 @@ public class TableTest {
 
     Table tas = TableCommander.getDb().getTable("tas");
     assertEquals(3, tas.getHeaders().size());
+
   }
 }

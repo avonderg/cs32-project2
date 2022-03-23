@@ -55,7 +55,6 @@ window.onload = () => {
     ` + document.body.innerHTML;
 
     VOICE_SYNTH = window.speechSynthesis;
-
     // screen reader button events
     const buttons = document.getElementById("screenReader")!.getElementsByTagName("button");
 
@@ -286,7 +285,7 @@ async function highlight(elt: Element): Promise<void>{
 
     // resets prev element's background color
     if ( prevElt != null) {
-        prevElt.style.background = document.body.style.backgroundColor || "#fff";
+        prevElt.style.background = document.body.style.backgroundColor || "#0000ffff";
     }
 
     const curr = document.getElementById(elt.id);
