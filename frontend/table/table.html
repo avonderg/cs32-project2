@@ -5,18 +5,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Table</title>
-<<<<<<< HEAD
 			<link rel="stylesheet" href="table.css"> 
-			<link href="http://fonts.cdnfonts.com/css/batman-forever" rel="stylesheet1">
-=======
-		<style>  
-			table, th, td {  
-				border: 2px solid black;  
-				border-collapse: collapse;  
-			}  
-			</style>
-			<link rel="stylesheet" href="table.css">
->>>>>>> 5b15abb32073bd100ef272bc9e3af2fd9d6c7cb2
 	</head>
 	
 	<body>
@@ -28,7 +17,10 @@
 		<button id="loader" value="Load data">Load data</button>
 		
 		<!-- Create a dropdown here to choose between tables -->
-		<div id="dropdown"></div>
+		<div id="dropdown">
+			<select name="tables" id="tableNames"></select>
+
+		</div>
 
 		<!-- Display your table here -->
 		<div id="content">
@@ -96,9 +88,8 @@
 			  </div>
 			</div>
 		  </div>
-
 		</body>
 
-	<script type="text/javascript" src = "../screenreader/screenreader.js"></script>
-	<script src = "./table.js"></script>
+	<script type="text/javascript" src = "./screenreader.js"></script>
+	<script src = "./table.js" defer></script>
 </html>

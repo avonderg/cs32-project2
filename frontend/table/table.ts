@@ -53,6 +53,7 @@ function updateDropdown(tableNames : string[]) : void {
     dropdown.innerHTML = "";
     dropdown.innerHTML += "<select name=\"tables\" id=\"tableNames\"></select>"; 
     
+    
     let tableNamesElement : HTMLSelectElement = document.getElementById("tableNames") as HTMLSelectElement; 
     tableNames.forEach((table : string) => tableNamesElement.innerHTML += `<option value=\"${table}\">${table}</option>`);
     // added all the table names to the drop down menu
