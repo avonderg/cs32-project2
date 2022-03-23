@@ -177,6 +177,7 @@ async function addRow() : Promise<void> {
 
     let tableNames : HTMLSelectElement = document.getElementById("tableNames") as HTMLSelectElement;
 
+
     const addParams : AddParams = {
         name: tableNames.value,
         columns: addColumns.value,

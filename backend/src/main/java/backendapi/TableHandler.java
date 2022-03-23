@@ -35,14 +35,10 @@ public class TableHandler implements Route {
       e.printStackTrace();
     }
 
-    // TODO: Handle errors on the frontend
     try {
       return GSON.toJson(TableCommander.getDb().getTable(tableName));
       // returns table
-    } catch (IllegalArgumentException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
-    } catch (SQLException e) {
+    } catch (IllegalArgumentException | SQLException e) {
       return GSON.toJson(e.getMessage());
       // returns error message
     }

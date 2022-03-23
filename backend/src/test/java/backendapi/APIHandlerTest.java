@@ -28,6 +28,8 @@ import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class APIHandlerTest {
+  // need to run ./run --gui and load database while running these tests
+
   @Test
   public void aTestAPIHandleTableName() {
     EndpointRequestGenerator requestGenerator = new ClientRequestGenerator();

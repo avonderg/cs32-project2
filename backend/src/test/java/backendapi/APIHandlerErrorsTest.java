@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class APIHandlerErrors {
+public class APIHandlerErrorsTest {
   @Before
   public void aaLoadDatabase() {
     TableCommander commander = new TableCommander();

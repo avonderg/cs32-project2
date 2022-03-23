@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestTableLoader {
+public class TableLoaderTest {
   @Test
   public void testLoad() {
     TableCommander commander = new TableCommander();

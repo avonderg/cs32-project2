@@ -323,25 +323,6 @@
       </plugin>
 
       <!--
-          spotbugs plugin to highlight possible code errors.
-          https://spotbugs.readthedocs.io/en/latest/maven.html.
-      -->
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>3.1.12.2</version>
-        <configuration>
-          <!--
-              Enable analysis which takes more memory but finds more bugs.
-              If you run out of memory, change the value to 'Low'.
-          -->
-          <effort>Max</effort>
-          <!-- Report all bugs (other values are medium and max) -->
-          <threshold>Low</threshold>
-        </configuration>
-      </plugin>
-
-      <!--
           jacoco creates a "coverage" report, so you can see what
           lines of codes and bracnhes your tests exercise.
       -->
