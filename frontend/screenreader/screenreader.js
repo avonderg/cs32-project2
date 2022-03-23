@@ -166,7 +166,8 @@ function inputHandlers(elt) {
                         }
                     }
                 }
-                else if (type == "submit") { // submit button
+                else if (type == "submit") // submit button
+                 {
                     document.getElementById(current).click();
                 }
                 document.getElementById(current).click();

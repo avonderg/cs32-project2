@@ -80,7 +80,8 @@ function generateHandlers(): void {
 
     // iterate through all elements in DOM
     let i = 0;
-    for (let e of collection as any){
+    for (let e of collection as any) {
+
         const htmlElt = e as HTMLElement
         let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
         let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
@@ -163,8 +164,8 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
                     }
                 }
             }
-            else if (type == "submit") { // submit button
-
+            else if (type == "submit") // submit button
+            {
                 document.getElementById(current)!.click();
             }
 
