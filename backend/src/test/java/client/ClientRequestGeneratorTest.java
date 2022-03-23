@@ -11,6 +11,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ClientRequestGeneratorTest {
 
@@ -24,9 +25,9 @@ public class ClientRequestGeneratorTest {
     List<String> urls = formatter.getEndpoints(client.makeRequest(req).body());
     assertEquals(3, urls.size());
     System.out.println(urls.get(0));
-    assertEquals(true, urls.get(0).contains("/info"));
-    assertEquals(true, urls.get(1).contains("/info"));
-    assertEquals(true, urls.get(2).contains("/info"));
+    assertTrue(urls.get(0).contains("/info"));
+    assertTrue(urls.get(1).contains("/info"));
+    assertTrue(urls.get(2).contains("/info"));
   }
 
   @Test
@@ -38,9 +39,9 @@ public class ClientRequestGeneratorTest {
     HttpRequest req = requestGenerator.getActiveMatch();
     List<String> urls = formatter.getEndpoints(client.makeRequest(req).body());
     assertEquals(3, urls.size());
-    assertEquals(true, urls.get(0).contains("/match"));
-    assertEquals(true, urls.get(1).contains("/match"));
-    assertEquals(true, urls.get(2).contains("/match"));
+    assertTrue(urls.get(0).contains("/match"));
+    assertTrue(urls.get(1).contains("/match"));
+    assertTrue(urls.get(2).contains("/match"));
   }
 
   @Test

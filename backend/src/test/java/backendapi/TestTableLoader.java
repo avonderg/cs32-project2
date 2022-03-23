@@ -1,7 +1,5 @@
 package backendapi;
 
-import client.ApiClient;
-import com.google.gson.Gson;
 import databaseloader.Table;
 import databaseloader.TableCommander;
 import org.json.JSONException;
@@ -9,19 +7,15 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class testTableLoader {
-  private static final Gson GSON = new Gson();
+public class TestTableLoader {
   @Test
   public void testLoad() {
-    ApiClient client = new ApiClient();
     TableCommander commander = new TableCommander();
     commander.handleCommand(new String[]{"load_db", "../data/horoscopes.sqlite3"});
     try {
@@ -60,11 +54,6 @@ public class testTableLoader {
       TableCommander.getDb().updateRow("tas", timJson, updateVals);
       Table updated = TableCommander.getDb().getTable("tas");
       assertEquals(added.getNumRows(), updated.getNumRows());
-
-//      String tableAsStr = GSON.toJson(TableCommander.getDb().getTable("tas"));
-//      JSONObject tableJson = new JSONObject(tableAsStr);
-//      String newId = tableJson.getString("id");
-//      assertEquals("20", newId);
     } catch (SQLException | JSONException e) {
       System.out.println("ERROR: TEST FAILED");
       Assert.fail();
