@@ -42,6 +42,7 @@ public class TableCommander implements CommandAcceptor {
         try {
           db = new TableLoader(input[1]);
         } catch (SQLException e) {
+          System.out.println(e);
           System.out.println("ERROR: Could not connect to database");
         } catch (ClassNotFoundException e) {
           System.out.println("ERROR: Class not found??");
