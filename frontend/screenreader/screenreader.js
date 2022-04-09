@@ -76,12 +76,12 @@ window.onload = () => {
 function generateHandlers() {
     // gets HTML elements
     const collection = document.getElementsByTagName("*");
+    console.log(collection);
     // iterate through all elements in DOM
     let i = 0;
     for (let e of collection) {
         const htmlElt = e;
-        let textTags = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"];
-        let tableTags = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
+        let textTags = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE"]; // "CAPTION", "TH", "TD"
         // store elements and associated handlers in ELEMENT_HANDLERS
         if (textTags.indexOf(htmlElt.tagName) > -1) {
             ELEMENT_HANDLERS[i] = [htmlElt, (x) => pureTextHandlers(x)];
@@ -98,8 +98,9 @@ function generateHandlers() {
         else if (htmlElt.tagName == "BUTTON") {
             ELEMENT_HANDLERS[i] = [htmlElt, (x) => buttonHandlers(x)];
         }
-        else if (tableTags.indexOf(htmlElt.tagName) > -1) {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)];
+        else if (htmlElt.tagName == "TABLE") {
+            console.log("GOT HERE");
+            ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableArriveHandler(x)];
         }
         else {
             continue;
@@ -239,7 +240,120 @@ function linkHandlers(elt) {
         yield speak(elt.textContent + ". There is a link here. Click enter to enter the link. Click escape to resume");
         return new Promise((resolve) => {
             document.body.addEventListener("keyup", function (event) {
-                // Number 82 is the "r" key on the keyboard
+                if (event.key === "Escape") {
+                    // Cancel the default action, if needed
+                    event.preventDefault();
+                    // cancel the current utterance and continue the readings
+                    console.log("RESOLVED");
+                    VOICE_SYNTH.cancel();
+                    resolve();
+                }
+            });
+        });
+    });
+}
+/**
+ * Generates handler functions for table elements
+ * @param elt:  HTMLElement input
+ */
+function tableArriveHandler(elt) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let columns = elt.rows[0].cells.length;
+        let rows = elt.rows.length;
+        yield speak("Reached a table with " + rows + " rows and " + columns + " columns");
+        let current_row = 0;
+        let current_col = 0;
+        return new Promise((resolve) => {
+            document.body.addEventListener("keyup", function (event) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    let table = elt;
+                    console.log(String(current_row));
+                    console.log(String(current_col));
+                    if (event.key === "r") {
+                        let cell = table.rows[current_row].cells[current_col];
+                        yield speak(cell.textContent);
+                    }
+                    if (event.key === "d") {
+                        VOICE_SYNTH.cancel();
+                        if (current_col < columns - 1) {
+                            current_col = current_col + 1;
+                            let cell = table.rows[current_row].cells[current_col];
+                            yield speak(cell.textContent);
+                        }
+                    }
+                    else if (event.key === "a") {
+                        VOICE_SYNTH.cancel();
+                        if (current_col > 0) {
+                            current_col = current_col - 1;
+                            let cell = table.rows[current_row].cells[current_col];
+                            yield speak(cell.textContent);
+                        }
+                    }
+                    else if (event.key == "w") {
+                        VOICE_SYNTH.cancel();
+                        if (current_row > 0) {
+                            current_row = current_row - 1;
+                            let cell = table.rows[current_row].cells[current_col];
+                            yield speak(cell.textContent);
+                        }
+                    }
+                    else if (event.key == "s") {
+                        VOICE_SYNTH.cancel();
+                        if (current_row < rows - 1) {
+                            current_row = current_row + 1;
+                            let cell = table.rows[current_row].cells[current_col];
+                            yield speak(cell.textContent);
+                        }
+                    }
+                    else if (event.key == "Escape") {
+                        VOICE_SYNTH.cancel();
+                        resolve();
+                    }
+                });
+            });
+        });
+        // iterate through all elements in DOM
+        // let i = 0;
+        // for (let e of collection as any){
+        //     const htmlElt = e as HTMLElement
+        //     let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
+        //     let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
+        //     if (tableTags.indexOf(htmlElt.tagName) > -1) {
+        //         ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
+        //     }
+        // }
+    });
+}
+function tableKeystrokes(event) {
+    // can change and add key mappings as needed
+    if (event.key === "ArrowRight") {
+        event.preventDefault();
+        changeVoiceRate(1.1);
+    }
+    else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        changeVoiceRate(0.9);
+    }
+    else if (event.key === "p") {
+        console.log(VOICE_SYNTH.paused);
+        if (VOICE_SYNTH.paused) { // if it is paused, then resume
+            resume();
+        }
+        else { // otherwise, pause
+            pause();
+        }
+    }
+    else if (event.key == "ArrowUp") {
+        previous();
+    }
+    else if (event.key == "ArrowDown") {
+        next();
+    }
+}
+function tableExitHandler(elt) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve) => {
+            document.body.addEventListener("keyup", function (event) {
                 if (event.key === "Escape") {
                     // Cancel the default action, if needed
                     event.preventDefault();
