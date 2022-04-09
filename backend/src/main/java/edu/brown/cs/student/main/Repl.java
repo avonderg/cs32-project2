@@ -71,6 +71,8 @@ public class Repl {
     StarCommander starCommander = new StarCommander();
     APICommander apiCommander = new APICommander();
     DatabaseCommander dbCommander = new DatabaseCommander();
+    seleniumCommander sCommander = new seleniumCommander();
+
 
     createCommand("insert_bf", bloomCommander);
     createCommand("create_bf", bloomCommander);
@@ -91,6 +93,7 @@ public class Repl {
     createCommand("load_db_horoscopes", dbCommander);
     createCommand("load_db_zoo", dbCommander);
     createCommand("query", dbCommander);
+    createCommand("run_selenium", sCommander);
 
 
     // PROJECT 2
