@@ -9,6 +9,7 @@ import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 
 function TableVisualizer() {
+  const [currTable, setCurrTable] = useState("");
   const [tableName, setTableName] = useState("");
   const [tableRows, setTableRows] = useState([]);
   const [tableNames, setTableNames] = useState([]);
@@ -71,6 +72,7 @@ function TableVisualizer() {
 
         setTableRows(response.data["rows"]);
         setTableHeaders(response.data["headers"]);
+        setCurrTable(tableName);
       })
       .catch((error) => {
         console.log(error);
@@ -194,7 +196,7 @@ function TableVisualizer() {
           Load
         </AwesomeButton>
       </div>
-      {tableRows.length > 0 ? <h2>Now Viewing: {tableName}</h2> : ""}
+      {tableRows.length > 0 ? <h2>Now Viewing: {currTable}</h2> : ""}
       <div className="majorRow">
         <div className="colLeft">
           <Table
