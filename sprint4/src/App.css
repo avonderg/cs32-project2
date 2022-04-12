@@ -20,6 +20,10 @@ th {
   font-size: 14pt;
 }
 
+button:hover{
+  cursor: pointer;
+}
+
 .sortButton {
   margin-left: 10px;
   width: 50px;
@@ -47,6 +51,10 @@ th {
 
 h1 {
   margin: 15px;
+}
+
+h2 {
+  margin: 25px;
 }
 
 h3 {
@@ -91,11 +99,16 @@ h4 {
 .modButton {
   height: 30px;
   width: 100px;
-  border-width: 3px;
-  background-color: white !important;
+  border-width: 0px;
+  background-color: #1e88e5;
+  color: white;
   border-radius: 3px;
-  border-color: aqua;
+  border-color: #1e88e5;
   border-style: solid;
+}
+
+.modButton:hover {
+  background-color: #187bd1;
 }
 
 select {
