@@ -4,23 +4,19 @@ package selenium;
 // need to option-enter (alt-enter) and pick a
 // "Maven: add ... to classpath" option.
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.Test;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.Color;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
 
 public class seleniumTest {
 
