@@ -33,7 +33,7 @@ button:hover{
 }
 
 .sortButton:hover {
-  background-color: gray;
+  background-color: lightgray;
 }
 
 .deleteButton {
@@ -45,7 +45,7 @@ button:hover{
 }
 
 .deleteButton:hover{
-  background-color: hotpink;
+  background-color: rgb(255, 140, 105);
 }
 
 
