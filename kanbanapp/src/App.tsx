@@ -20,7 +20,7 @@ function App() {
   const [currTableData, setCurrTableData] = useState<table>({headerList: ["empty"], rowMap:[{"empty": "empty"}]})
 
   const requestKanban = async() => {
-    fetch("http://localhost:4567/loadkanban", {
+    fetch("http://localhost:4567/loadKanban", {
       method: "GET",
       headers: {
         "Access-Control-Allow-Origin": "*"

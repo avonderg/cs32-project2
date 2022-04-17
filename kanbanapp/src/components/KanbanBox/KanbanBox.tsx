@@ -6,9 +6,9 @@ type cell_props = {
 }
 function KanbanCell(props: cell_props) {
     return(
-        // <td className = "Cell">
-        //     {props.contents}
-        // </td>
+        <td className = "Cell">
+            {props.contents}
+        </td>
     );
 }
 

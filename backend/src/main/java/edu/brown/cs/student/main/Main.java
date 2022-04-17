@@ -2,11 +2,8 @@ package edu.brown.cs.student.main;
 
 // look into using these imports for your REPL!
 import java.io.IOException;
-import backendapi.TableDeleteHandler;
-import backendapi.TableHandler;
-import backendapi.TableInsertHandler;
-import backendapi.TableNameHandler;
-import backendapi.TableUpdateHandler;
+
+import backendapi.*;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import spark.Spark;
@@ -103,6 +100,7 @@ public final class Main {
     Spark.post("/update", new TableUpdateHandler());
 
     Spark.get("/tableNames", new TableNameHandler());
+    Spark.get("/loadKanban", new TableHandler());
 
     Spark.init();
   }

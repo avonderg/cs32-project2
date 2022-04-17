@@ -19,25 +19,25 @@ import static org.junit.Assert.*;
 
 public class SeleniumAssertedTest {
 
-    @Test
-    /**
-     * Runs Selenium and sets up the SafariDriver, tests that all tests are passed, and then quits the driver
-     */
-    public void testTableViz() {
-        WebDriverManager.safaridriver().setup();
-        SafariOptions options = new SafariOptions();
-        SafariDriver driver = new SafariDriver(options);
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500)); // waits
-
-        driver.get("file:///Users/alexandravondergoltz/Desktop/cs32/project-2-avonderg-nxu4-sanand14/frontend/table/table.html");
-
-        testTitles(driver);
-        testLoadData(driver);
-        testStyles(driver);
-        testInputs(driver);
-
-        driver.quit();
-    }
+//    @Test
+//    /**
+//     * Runs Selenium and sets up the SafariDriver, tests that all tests are passed, and then quits the driver
+//     */
+//    public void testTableViz() {
+//        WebDriverManager.safaridriver().setup();
+//        SafariOptions options = new SafariOptions();
+//        SafariDriver driver = new SafariDriver(options);
+//        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500)); // waits
+//
+//        driver.get("file:///Users/alexandravondergoltz/Desktop/cs32/project-2-avonderg-nxu4-sanand14/frontend/table/table.html");
+//
+//        testTitles(driver);
+//        testLoadData(driver);
+//        testStyles(driver);
+//        testInputs(driver);
+//
+//        driver.quit();
+//    }
 
     /**
      * Tests that all titles appear properly on the HTML page
