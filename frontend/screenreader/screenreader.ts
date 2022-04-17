@@ -44,6 +44,7 @@ function speak(text: string) {
 
 window.onload = () => {
     generateHandlers();
+    console.log('generated handlers')
     document.body.innerHTML = `
         <div id="screenReader">
             <button>Start [Space]</button>
@@ -76,7 +77,7 @@ window.onload = () => {
 function generateHandlers(): void {
     // gets HTML elements
     const collection : HTMLCollectionOf<Element> = document.getElementsByTagName("*");
-
+    console.log('entered generateHandlers()');
     // iterate through all elements in DOM
     let i = 0;
     for (let e of collection as any) {
@@ -115,6 +116,7 @@ function generateHandlers(): void {
  * @param elt: HTMLElement input
  */
 async function pureTextHandlers(elt : HTMLElement): Promise<void> {
+    console.log('entered pureTextHandlers(); current='+current)
     if (elt.tagName == "TITLE") {
         await speak("Title " + (elt.textContent as string))
     } else if (elt.tagName == "LABEL"){
@@ -129,6 +131,7 @@ async function pureTextHandlers(elt : HTMLElement): Promise<void> {
  * @param e: HTMLElement input
  */
 async function imgHandlers(e: HTMLElement): Promise<void> {
+    console.log('entered imgHandlers(); current='+current)
     if ((e as HTMLImageElement).alt != "") {
         await speak("This is a picture of " + (e as HTMLImageElement).alt as string)
     } else {
@@ -142,7 +145,7 @@ async function imgHandlers(e: HTMLElement): Promise<void> {
  */
 async function inputHandlers(elt: HTMLElement): Promise<void> {
     let type = (elt as HTMLInputElement).type
-
+    console.log('entered inputHandlers(); current='+current)
     document.body.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             // Cancel the default action, if needed
@@ -183,7 +186,8 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
                 // Cancel the default action, if needed
                 event.preventDefault();
 
-                VOICE_SYNTH.cancel();
+                // VOICE_SYNTH.cancel();
+                resume()
                 // Trigger the button element with a click
                 resolve();
             }
@@ -197,7 +201,7 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
  */
 async function buttonHandlers(elt: HTMLElement): Promise<void> {
     let button = elt as HTMLButtonElement
-
+    console.log('entered buttonHandlers(); current='+current)
     document.body.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             // Cancel the default action, if needed
@@ -221,7 +225,7 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
 
                 // cancel the current utterance and continue the readings
                 console.log("RESOLVED");
-                VOICE_SYNTH.cancel();
+                resume();
                 resolve();
             }
         });
@@ -234,6 +238,7 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
  * @param elt: HTMLElement input
  */
 async function linkHandlers(elt: HTMLElement): Promise<void> {
+    console.log('entered linkHandlers(); current='+current)
     document.body.addEventListener("keyup", function(event) {
         if (event.key === "Enter") {
             // Cancel the default action, if needed
@@ -266,7 +271,7 @@ async function linkHandlers(elt: HTMLElement): Promise<void> {
 async function tableHandlers(elt: HTMLElement): Promise<void> {
     if (elt.tagName == "CAPTION" || elt.tagName == "TH" || elt.tagName === "TD"){
         if (elt.children.length<0) {
-            await speak(elt.textContent as string)
+            await speak(elt.textContent as string) // reads table
         }
     }
 }
@@ -282,13 +287,12 @@ async function highlight(elt: Element): Promise<void>{
 
     // resets prev element's background color
     if ( prevElt != null) {
-        // prevElt.style.background = document.body.style.backgroundColor || "#0000ffff";
         prevElt.style.background = document.body.style.backgroundColor;
     }
 
-    const curr = document.getElementById(elt.id);
+    const curr = document.getElementById(elt.id); // gets curr
     if( curr != null) {
-        curr.style.background = "#fff8a6";
+        curr.style.background = "#fff8a6"; // highlights element
     }
 
 }
@@ -328,7 +332,7 @@ async function previous() {
         VOICE_SYNTH.cancel();
         // @ts-ignore
         document.getElementById(current).style.background = document.body.style.backgroundColor;
-        current = String(+current-2)
+        current = String(+current-2) // changes value of current to move to prev element
     }
 }
 
@@ -341,11 +345,11 @@ async function start(curr: String) {
 
     if (currentElement != null) {
         console.log("ON " + current)
-        await highlight(currentElement[0])
+        await highlight(currentElement[0]) // higlights current elt
         await currentElement[1](currentElement[0])
         prev = current
-        current = String(+current+1)
-        await start(current)
+        current = String(+current+1) // increases current by one
+        await start(current) // starts
     }
 
     console.log('End');
@@ -376,9 +380,11 @@ function globalKeystrokes(event: KeyboardEvent): void {
         current = "0"
         start("0");
     } else if (event.key === "ArrowRight") {
+        console.log('right arrow clicked; current='+current)
         event.preventDefault();
         changeVoiceRate(1.1);
     } else if (event.key === "ArrowLeft") {
+        console.log('left arrow clicked; current='+current)
         event.preventDefault();
         changeVoiceRate(0.9);
     }
@@ -392,9 +398,11 @@ function globalKeystrokes(event: KeyboardEvent): void {
         }
     }
     else if (event.key == "ArrowUp") {
+        console.log('up arrow clicked; current='+current)
         previous();
     }
     else if (event.key == "ArrowDown") {
+        console.log('down arrow clicked; current='+current)
         next();
     }
 }

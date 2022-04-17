@@ -19,7 +19,6 @@ let VOICE_RATE = 1;
 let ELEMENT_HANDLERS = {};
 // Indicates the current element that the user is on
 // You can decide the type of this variable
-let currentIndex; // corresponds to ID of the element
 let current;
 let prev; // ID of previous
 /**
@@ -29,7 +28,7 @@ let prev; // ID of previous
 function speak(text) {
     if (VOICE_SYNTH) {
         // initialize a speech request using SpeechSynthesisUtterance
-        var utterance = new SpeechSynthesisUtterance(text);
+        let utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = VOICE_RATE;
         // listens for pause
         utterance.addEventListener('pause', function (event) {
@@ -45,6 +44,7 @@ function speak(text) {
 }
 window.onload = () => {
     generateHandlers();
+    console.log('generated handlers');
     document.body.innerHTML = `
         <div id="screenReader">
             <button>Start [Space]</button>
@@ -76,6 +76,7 @@ window.onload = () => {
 function generateHandlers() {
     // gets HTML elements
     const collection = document.getElementsByTagName("*");
+    console.log('entered generateHandlers()');
     // iterate through all elements in DOM
     let i = 0;
     for (let e of collection) {
@@ -115,6 +116,7 @@ function generateHandlers() {
  */
 function pureTextHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('entered pureTextHandlers(); current=' + current);
         if (elt.tagName == "TITLE") {
             yield speak("Title " + elt.textContent);
         }
@@ -128,10 +130,11 @@ function pureTextHandlers(elt) {
 }
 /**
  * Generates handler functions for image elements
- * @param elt: HTMLElement input
+ * @param e: HTMLElement input
  */
 function imgHandlers(e) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('entered imgHandlers(); current=' + current);
         if (e.alt != "") {
             yield speak("This is a picture of " + e.alt);
         }
@@ -147,8 +150,8 @@ function imgHandlers(e) {
 function inputHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         let type = elt.type;
+        console.log('entered inputHandlers(); current=' + current);
         document.body.addEventListener("keypress", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -181,7 +184,8 @@ function inputHandlers(elt) {
                 if (event.key === "Escape") {
                     // Cancel the default action, if needed
                     event.preventDefault();
-                    VOICE_SYNTH.cancel();
+                    // VOICE_SYNTH.cancel();
+                    resume();
                     // Trigger the button element with a click
                     resolve();
                 }
@@ -196,8 +200,8 @@ function inputHandlers(elt) {
 function buttonHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         let button = elt;
+        console.log('entered buttonHandlers(); current=' + current);
         document.body.addEventListener("keypress", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -215,7 +219,7 @@ function buttonHandlers(elt) {
                     event.preventDefault();
                     // cancel the current utterance and continue the readings
                     console.log("RESOLVED");
-                    VOICE_SYNTH.cancel();
+                    resume();
                     resolve();
                 }
             });
@@ -228,8 +232,8 @@ function buttonHandlers(elt) {
  */
 function linkHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('entered linkHandlers(); current=' + current);
         document.body.addEventListener("keyup", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -240,7 +244,6 @@ function linkHandlers(elt) {
         yield speak(elt.textContent + ". There is a link here. Click enter to enter the link. Click escape to resume");
         return new Promise((resolve) => {
             document.body.addEventListener("keyup", function (event) {
-                // Number 82 is the "r" key on the keyboard
                 if (event.key === "Escape") {
                     // Cancel the default action, if needed
                     event.preventDefault();
@@ -261,7 +264,7 @@ function tableHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         if (elt.tagName == "CAPTION" || elt.tagName == "TH" || elt.tagName === "TD") {
             if (elt.children.length < 0) {
-                yield speak(elt.textContent);
+                yield speak(elt.textContent); // reads table
             }
         }
     });
@@ -276,12 +279,11 @@ function highlight(elt) {
         const prevElt = document.getElementById(prev);
         // resets prev element's background color
         if (prevElt != null) {
-            // prevElt.style.background = document.body.style.backgroundColor || "#0000ffff";
             prevElt.style.background = document.body.style.backgroundColor;
         }
-        const curr = document.getElementById(elt.id);
+        const curr = document.getElementById(elt.id); // gets curr
         if (curr != null) {
-            curr.style.background = "#fff8a6";
+            curr.style.background = "#fff8a6"; // highlights element
         }
     });
 }
@@ -321,7 +323,7 @@ function previous() {
             VOICE_SYNTH.cancel();
             // @ts-ignore
             document.getElementById(current).style.background = document.body.style.backgroundColor;
-            current = String(+current - 2);
+            current = String(+current - 2); // changes value of current to move to prev element
         }
     });
 }
@@ -334,11 +336,11 @@ function start(curr) {
         let currentElement = ELEMENT_HANDLERS[+current];
         if (currentElement != null) {
             console.log("ON " + current);
-            yield highlight(currentElement[0]);
+            yield highlight(currentElement[0]); // higlights current elt
             yield currentElement[1](currentElement[0]);
             prev = current;
-            current = String(+current + 1);
-            yield start(current);
+            current = String(+current + 1); // increases current by one
+            yield start(current); // starts
         }
         console.log('End');
     });
@@ -367,10 +369,12 @@ function globalKeystrokes(event) {
         start("0");
     }
     else if (event.key === "ArrowRight") {
+        console.log('right arrow clicked; current=' + current);
         event.preventDefault();
         changeVoiceRate(1.1);
     }
     else if (event.key === "ArrowLeft") {
+        console.log('left arrow clicked; current=' + current);
         event.preventDefault();
         changeVoiceRate(0.9);
     }
@@ -384,9 +388,11 @@ function globalKeystrokes(event) {
         }
     }
     else if (event.key == "ArrowUp") {
+        console.log('up arrow clicked; current=' + current);
         previous();
     }
     else if (event.key == "ArrowDown") {
+        console.log('down arrow clicked; current=' + current);
         next();
     }
 }
