@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import KanbanCell from './KanbanCell';
+// import KanbanBox from './KanbanBox';
 
 type TableRowProps = {
     kanban_status: string[];
