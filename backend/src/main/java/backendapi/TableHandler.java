@@ -27,22 +27,20 @@ public class TableHandler implements Route {
   public String handle(Request req, Response res) {
     String tableName = "";
     JSONObject values = null;
+    String sortCol = "";
 
     try {
       values = new JSONObject(req.body());
       tableName = values.getString("name");
+      sortCol = values.getString("sortCol");
     } catch (JSONException e) {
       e.printStackTrace();
     }
 
-    // TODO: Handle errors on the frontend
     try {
-      return GSON.toJson(TableCommander.getDb().getTable(tableName));
+      return GSON.toJson(TableCommander.getDb().getTable(tableName, sortCol));
       // returns table
-    } catch (IllegalArgumentException e) {
-      return GSON.toJson(e.getMessage());
-      // returns error message
-    } catch (SQLException e) {
+    } catch (IllegalArgumentException | SQLException e) {
       return GSON.toJson(e.getMessage());
       // returns error message
     }

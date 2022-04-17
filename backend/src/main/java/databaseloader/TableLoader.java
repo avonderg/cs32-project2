@@ -2,7 +2,6 @@ package databaseloader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,7 +23,7 @@ import java.util.Set;
  * @author Suraj Anand
  */
 public class TableLoader {
-  private Connection conn = null;
+  private final Connection conn;
 
   /**
    * Instantiates a connection to the specified SQL Database File.
@@ -74,6 +73,13 @@ public class TableLoader {
     return null;
   }
 
+  /**
+   * Checks to make sure that a given tableName represents a valid table in the database.
+   * @param tableName a string representing the name of the table
+   * @return a boolean, true if the table is valid
+   * @throws SQLException if an SQL exception occurs
+   * @throws IllegalArgumentException if a table name is not valid
+   */
   private boolean checkValidTable(String tableName)
       throws SQLException, IllegalArgumentException {
     if (tableName == null) {
@@ -90,8 +96,8 @@ public class TableLoader {
 
   /**
    * @return a set of strings representing the table names.
-   * @throws SQLException
-   * @throws IllegalStateException
+   * @throws SQLException if the select query fails
+   * @throws IllegalStateException if the command results in an illegal state
    */
   public Set<String> getTableNames()
       throws SQLException, IllegalStateException {
@@ -114,7 +120,7 @@ public class TableLoader {
    * @throws SQLException if errors during SQL
    * @throws IllegalArgumentException if table name is null or table not exist
    */
-  public Table getTable(String tableName)
+  public Table getTable(String tableName, String sortCol)
       throws SQLException, IllegalArgumentException {
     if (tableName == null) {
       throw new IllegalArgumentException("ERROR: Cannot get null table.");
@@ -125,8 +131,8 @@ public class TableLoader {
       throw new IllegalArgumentException("ERROR: Table \"" + tableName + "\" does not exist.");
     }
 
-    // Prepare a statement to get everything from the table.
-    ResultSet dbRes = runCommand("SELECT * FROM " + tableName + ";");
+    // Prepare a statement to get everything from the table.  + "ORDER BY " + sortCol +
+    ResultSet dbRes = runCommand("SELECT * FROM " + tableName + " ORDER BY " + sortCol + ";");
     ResultSetMetaData dbResMeta = dbRes.getMetaData();
 
     // Get the column headers
@@ -153,10 +159,11 @@ public class TableLoader {
 
   /**
    * Inserts a new row containing data into the table.
-   * @param tableName
-   * @param dataValues
-   * @throws SQLException
-   * @throws IllegalArgumentException
+   * @param tableName a string representing the name of the table to insert into
+   * @param dataValues a map of strings to strings representing the column name to the value to be
+   *                   inserted into that column
+   * @throws SQLException if the query to add to the database fails
+   * @throws IllegalArgumentException if the table is invalid
    */
   public void addData(String tableName, Map<String, String> dataValues)
       throws SQLException, IllegalArgumentException {
@@ -172,17 +179,12 @@ public class TableLoader {
         values.append("'").append(value).append("'").append(", ");
       }
       // formatting end of inputs
-      System.out.println(columns);
-      System.out.println(values);
       columns.delete(columns.length() - 2, columns.length());
       columns.append(")");
       values.delete(values.length() - 2, values.length());
       values.append(")");
-
       String colsToInsert = columns.toString();
       String valsToInsert = values.toString();
-      System.out.println(colsToInsert);
-      System.out.println(valsToInsert);
 
       // Prepare a statement to add the data to the table.
       Statement stmt = conn.createStatement();
@@ -194,13 +196,20 @@ public class TableLoader {
     }
   }
 
+  /**
+   * deletes a row from the given table.
+   * @param tableName a String, the name of the table we want to delete from
+   * @param row a JSONObject, the row of the table we want to delete from
+   * @throws SQLException if the sql query to delete fails
+   * @throws IllegalArgumentException if the table name is invalid
+   */
   public void deleteRow(String tableName, JSONObject row)
       throws SQLException, IllegalArgumentException {
     if (checkValidTable(tableName)) {
       // Prepare a statement to delete the row from the table.
       try {
         StringBuilder deleteQuery = new StringBuilder();
-        Iterator keys = row.keys();
+        Iterator<?> keys = row.keys();
         while (keys.hasNext()) {
           String currKey = (String) keys.next();
           String val = row.getString(currKey);
@@ -223,15 +232,21 @@ public class TableLoader {
     }
   }
 
+  /**
+   * Updates a row in the given table.
+   * @param tableName a String, the name of the table we want to update.
+   * @param row a JSONObject, the row of the table we want to update
+   * @param dataValues a map of the columns to the values we want to update.
+   * @throws SQLException if the query to update fails
+   * @throws IllegalArgumentException if the table name is invalid
+   */
   public void updateRow(String tableName, JSONObject row,
                                Map<String, String> dataValues)
       throws SQLException, IllegalArgumentException {
     if (checkValidTable(tableName)) {
       try {
-//        String primaryKey = this.getPrimaryKey(tableName);
-//        String id = row.getString(primaryKey);
         StringBuilder updateQuery = new StringBuilder();
-        Iterator keys = row.keys();
+        Iterator<?> keys = row.keys();
         while (keys.hasNext()) {
           String currKey = (String) keys.next();
           String val = row.getString(currKey);
@@ -261,19 +276,5 @@ public class TableLoader {
         e.printStackTrace();
       }
     }
-  }
-
-  /**
-   * Closes a SQL connection (when not using this db anymore).
-   * @throws SQLException if cannot connect to db
-   */
-  public void closeConnection() throws SQLException {
-    if (conn == null) {
-      return;
-    }
-    if (!conn.isClosed()) {
-      conn.close();
-    }
-    conn = null;
   }
 }

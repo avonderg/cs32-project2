@@ -101,7 +101,6 @@ public final class Main {
     Spark.post("/add", new TableInsertHandler());
     Spark.post("/delete", new TableDeleteHandler());
     Spark.post("/update", new TableUpdateHandler());
-
     Spark.get("/tableNames", new TableNameHandler());
 
     Spark.init();

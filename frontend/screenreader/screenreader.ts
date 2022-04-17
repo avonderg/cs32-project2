@@ -54,7 +54,6 @@ window.onload = () => {
     ` + document.body.innerHTML;
 
     VOICE_SYNTH = window.speechSynthesis;
-
     // screen reader button events
     const buttons = document.getElementById("screenReader")!.getElementsByTagName("button");
 
