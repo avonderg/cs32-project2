@@ -42,7 +42,6 @@ function speak(text: string) {
     }
 }
 
-
 window.onload = () => {
     generateHandlers();
     document.body.innerHTML = `
@@ -69,45 +68,105 @@ window.onload = () => {
     document.addEventListener("keydown", globalKeystrokes);
 }
 
+let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE"] // "CAPTION", "TH", "TD"
+
 /**
  * Gets all the elements by their tagnames, sets their ID's, and inserts each element into the global
  * ELEMENT_HANDLERS array along with their handler functions
  */
 function generateHandlers(): void {
     // gets HTML elements
-    const collection : HTMLCollectionOf<Element> = document.getElementsByTagName("*");
+    let collection : HTMLCollectionOf<Element> = document.getElementsByTagName("*");
+    console.log(collection)
 
     // iterate through all elements in DOM
+    let toSkip: Array<number> = [];
     let i = 0;
+    let index = 0;
     for (let e of collection as any){
-        const htmlElt = e as HTMLElement
-        let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
-        let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
+        if (toSkip.indexOf(index) == -1) {
+            const htmlElt = e as HTMLElement        
+            console.log(index)
 
         // store elements and associated handlers in ELEMENT_HANDLERS
-        if (textTags.indexOf(htmlElt.tagName) > -1) {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => pureTextHandlers(x)]
-        } else if (htmlElt.tagName == "IMG") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => imgHandlers(x)]
-        } else if (htmlElt.tagName == "A") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => linkHandlers(x)]
-        } else if (htmlElt.tagName == "INPUT") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => inputHandlers(x)]
-        }
-        else if (htmlElt.tagName == "BUTTON") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => buttonHandlers(x)]
-        }
-        else if (tableTags.indexOf(htmlElt.tagName) > -1) {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
-        } else {
-            continue;
-        }
+            let isElement : boolean = handleElement(htmlElt, i);
+            if (htmlElt.tagName == "TABLE") {
+                let numberChildren : number = htmlElt.getElementsByTagName("*").length
+                console.log(numberChildren)
+                for (let j : number = index + 1; j < index + 1 + numberChildren; j ++) {
+                    toSkip.push(j);
+                }
+                console.log("ADDING ELMENTS TO SKIP")
+                console.log(toSkip)
 
-        // assign element an id
-        htmlElt.id = String(i);
-        i = i+1
+            }
+            if (isElement) {
+                // assign element an id
+                htmlElt.id = String(i);
+                i = i+1
+            }
+        }
+        index = index + 1;
     }
 }
+
+function countAllDescendants(node : Node, count : number) {
+    for (var i = 0; i < node.childNodes.length; i++) {
+      var child = node.childNodes[i];
+      count = count + 1;
+      countAllDescendants(child, count);
+    }
+}
+
+function handleElement(htmlElt: HTMLElement, i: number): boolean {
+    console.log("Handled elt " + htmlElt.tagName)
+    if (textTags.indexOf(htmlElt.tagName) > -1) {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => pureTextHandlers(x)]
+    } else if (htmlElt.tagName == "IMG") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => imgHandlers(x)]
+    } else if (htmlElt.tagName == "A") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => linkHandlers(x)]
+    } else if (htmlElt.tagName == "INPUT") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => inputHandlers(x)]
+    }
+    else if (htmlElt.tagName == "BUTTON") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => buttonHandlers(x)]
+    }
+    else if (htmlElt.tagName == "TABLE") {
+        console.log("GOT HERE");
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableArriveHandler(x)]
+
+    } 
+    else {
+        return false;
+    }
+    return true;
+}
+
+function handleElementSolo(htmlElt: HTMLElement): boolean {
+    console.log("Handled elt " + htmlElt.tagName)
+    if (textTags.indexOf(htmlElt.tagName) > -1) {
+        pureTextHandlers(htmlElt)
+    } else if (htmlElt.tagName == "IMG") {
+        imgHandlers(htmlElt)
+    } else if (htmlElt.tagName == "A") {
+        linkHandlers(htmlElt)
+    } else if (htmlElt.tagName == "INPUT") {
+        inputHandlers(htmlElt)
+    }
+    else if (htmlElt.tagName == "BUTTON") {
+        buttonHandlers(htmlElt)
+    }
+    else if (htmlElt.tagName == "TABLE") {
+        console.log("GOT HERE");
+        tableArriveHandler(htmlElt)
+    } 
+    else {
+        return false;
+    }
+    return true;
+}
+
 
 /**
  * Generates handler functions for text elements
@@ -163,7 +222,6 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
                 }
             }
             else if (type == "submit") { // submit button
-
                 document.getElementById(current)!.click();
             }
 
@@ -227,7 +285,6 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
             }
         });
     })
-
 }
 
 /**
@@ -248,7 +305,149 @@ async function linkHandlers(elt: HTMLElement): Promise<void> {
 
     return new Promise<void>((resolve) => {
         document.body.addEventListener("keyup", function(event) {
-            // Number 82 is the "r" key on the keyboard
+
+            if (event.key === "Escape") {
+                // Cancel the default action, if needed
+                event.preventDefault();
+
+                // cancel the current utterance and continue the readings
+                console.log("RESOLVED");
+                VOICE_SYNTH.cancel();
+                resolve();
+            }
+        });
+    })
+}
+
+/**
+ * Generates handler functions for table elements
+ * @param elt:  HTMLElement input
+ */
+async function tableArriveHandler(elt: HTMLElement): Promise<void> {
+    let columns : number  = (elt as HTMLTableElement).rows[0].cells.length
+    let rows : number = (elt as HTMLTableElement).rows.length
+    await speak("Reached a table with " + rows + " rows and " + columns + " columns"  as string)
+    await speak("Press w, s, a, and d to navigate. Press r to read. Press l to leave."  as string)
+
+    let current_row : number = 0
+    let current_col : number = 0
+
+    return new Promise<void>((resolve) => {
+        document.body.addEventListener("keyup", async function(event) {
+
+            let table : HTMLTableElement = (elt as HTMLTableElement)
+            
+            console.log(String(current_row))
+            console.log(String(current_col))
+    
+            if (event.key === "r") {
+                let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                await speak(cell.textContent as string)
+                let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
+                for (let child of children as any) {
+                    handleElementSolo(child)
+                }
+            }
+            if (event.key === "d") {
+                VOICE_SYNTH.cancel();
+                if (current_col < table.rows[current_row].cells.length - 1) {
+                    current_col = current_col + 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    await speak(cell.textContent as string)
+                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
+                    for (let child of children as any) {
+                        handleElementSolo(child)
+                    }
+
+                }
+            } else if (event.key === "a") {
+                VOICE_SYNTH.cancel();
+                if (current_col > 0) {
+                    current_col = current_col - 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    await speak(cell.textContent as string)
+                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
+                    for (let child of children as any) {
+                        handleElementSolo(child)
+                    }
+
+                }
+            } else if (event.key == "w") {
+                VOICE_SYNTH.cancel();
+                if (current_row > 0) {
+                    current_row = current_row - 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    await speak(cell.textContent as string)
+                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
+                    for (let child of children as any) {
+                        handleElementSolo(child)
+                    }
+
+                }
+            } else if (event.key == "s") {
+                VOICE_SYNTH.cancel();
+                if (current_row < rows - 1) {
+                    current_row = current_row + 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    await speak(cell.textContent as string)
+                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
+                    for (let child of children as any) {
+                        handleElementSolo(child)
+                    }
+                }
+            }
+            else if (event.key == "l") {
+                VOICE_SYNTH.cancel();
+                resolve()
+            }
+        });
+    })
+
+
+
+    // iterate through all elements in DOM
+    // let i = 0;
+    // for (let e of collection as any){
+    //     const htmlElt = e as HTMLElement
+    //     let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
+    //     let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
+    //     if (tableTags.indexOf(htmlElt.tagName) > -1) {
+    //         ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
+    //     }
+    // }
+
+}
+
+function tableKeystrokes(event: KeyboardEvent): void {
+    // can change and add key mappings as needed
+    if (event.key === "ArrowRight") {
+        event.preventDefault();
+        changeVoiceRate(1.1);
+    } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        changeVoiceRate(0.9);
+    }
+    else if (event.key === "p") {
+        console.log(VOICE_SYNTH.paused);
+        if (VOICE_SYNTH.paused) {  // if it is paused, then resume
+            resume();
+        }
+        else {  // otherwise, pause
+            pause();
+        }
+    }
+    else if (event.key == "ArrowUp") {
+        previous();
+    }
+    else if (event.key == "ArrowDown") {
+        next();
+    }
+}
+
+async function tableExitHandler(elt: HTMLElement): Promise<void> {
+    return new Promise<void>((resolve) => {
+        document.body.addEventListener("keyup", function(event) {
+            
             if (event.key === "Escape") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -352,8 +551,11 @@ async function previous() {
 async function start(curr: String) {
     console.log('Start');
     let currentElement =  ELEMENT_HANDLERS[+current]
+    console.log(ELEMENT_HANDLERS)
+    console.log(current)
 
     if (currentElement != null) {
+        console.log(ELEMENT_HANDLERS)
         console.log("ON " + current)
         await highlight(currentElement[0])
         await currentElement[1](currentElement[0])
