@@ -42,7 +42,7 @@ public class seleniumTest {
 
         driver.get(path);
         testTitles(driver);
-        testLoadData(driver, actions);
+        testLoadData(driver);
         testStyles(driver);
 
         driver.quit();
