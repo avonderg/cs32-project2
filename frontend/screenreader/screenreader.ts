@@ -112,9 +112,9 @@ function generateHandlers(): void {
 
 function countAllDescendants(node : Node, count : number) {
     for (var i = 0; i < node.childNodes.length; i++) {
-      var child = node.childNodes[i];
-      count = count + 1;
-      countAllDescendants(child, count);
+        var child = node.childNodes[i];
+        count = count + 1;
+        countAllDescendants(child, count);
     }
 }
 
@@ -327,7 +327,7 @@ async function tableArriveHandler(elt: HTMLElement): Promise<void> {
     let columns : number  = (elt as HTMLTableElement).rows[0].cells.length
     let rows : number = (elt as HTMLTableElement).rows.length
     await speak("Reached a table with " + rows + " rows and " + columns + " columns"  as string)
-    await speak("Press w, s, a, and d to navigate. Press r to read. Press l to leave."  as string)
+    await speak("Press w, s, a, and d to navigate. Press r to read. Press p to for position. Press l to leave."  as string)
 
     let current_row : number = 0
     let current_col : number = 0
@@ -347,6 +347,10 @@ async function tableArriveHandler(elt: HTMLElement): Promise<void> {
                 for (let child of children as any) {
                     handleElementSolo(child)
                 }
+            }
+            if (event.key === "p") {
+                VOICE_SYNTH.cancel();
+                await speak("Currently at row " + current_row + " and column " + current_col)
             }
             if (event.key === "d") {
                 VOICE_SYNTH.cancel();

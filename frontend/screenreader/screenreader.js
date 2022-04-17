@@ -316,7 +316,7 @@ function tableArriveHandler(elt) {
         let columns = elt.rows[0].cells.length;
         let rows = elt.rows.length;
         yield speak("Reached a table with " + rows + " rows and " + columns + " columns");
-        yield speak("Press w, s, a, and d to navigate. Press r to read. Press l to leave.");
+        yield speak("Press w, s, a, and d to navigate. Press r to read. Press p to for position. Press l to leave.");
         let current_row = 0;
         let current_col = 0;
         return new Promise((resolve) => {
@@ -332,6 +332,10 @@ function tableArriveHandler(elt) {
                         for (let child of children) {
                             handleElementSolo(child);
                         }
+                    }
+                    if (event.key === "p") {
+                        VOICE_SYNTH.cancel();
+                        yield speak("Currently at row " + current_row + " and column " + current_col);
                     }
                     if (event.key === "d") {
                         VOICE_SYNTH.cancel();
