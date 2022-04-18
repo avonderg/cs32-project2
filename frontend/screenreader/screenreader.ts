@@ -424,7 +424,7 @@ async function highlight(elt: Element): Promise<void>{
 
     // resets prev element's background color
     if ( prevElt != null) {
-        prevElt.style.background = document.body.style.backgroundColor || "#0000ffff";
+        prevElt.style.background = document.body.style.backgroundColor;
     }
 
     const curr = document.getElementById(elt.id);
@@ -461,19 +461,7 @@ async function next() {
 async function previous() {
     console.log("TO PREVIOUS")
     VOICE_SYNTH.cancel();
-    // // const prev: number = +current-1;
-    // // const prevElt = ELEMENT_HANDLERS[prev]
-    // // if ( prevElt != null) {
-    // //     current = String(prev)
-    // //     await start(String(prev))
-    // // }
-    // // current = prev
-    // // await start(prev)
-    // currentIndex = currentIndex - 2
-    // for (currentIndex; currentIndex < Object.keys(ELEMENT_HANDLERS).length; currentIndex++) {
-    //     current = ELEMENT_HANDLERS[currentIndex]
-    //     await current[1](current[0])
-    // }
+
     if (ELEMENT_HANDLERS[+prev-2] != null) {
         prev = String(+prev-2)
     }
@@ -513,16 +501,16 @@ async function start(curr: String) {
 /**
  * Pauses the reading of the page.
  */
- function pause() {
-     VOICE_SYNTH.pause();
+function pause() {
+    VOICE_SYNTH.pause();
 }
 
- /**
+/**
  * Resumes the reading of the page.
  */
-  function resume() {
-      VOICE_SYNTH.resume();
- }
+function resume() {
+    VOICE_SYNTH.resume();
+}
 
 /**
  * Listens for keydown events.
