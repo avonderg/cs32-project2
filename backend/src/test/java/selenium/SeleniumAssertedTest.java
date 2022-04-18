@@ -29,7 +29,7 @@ public class SeleniumAssertedTest {
 //        SafariDriver driver = new SafariDriver(options);
 //        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500)); // waits
 //
-//        driver.get("file:///Users/alexandravondergoltz/Desktop/cs32/project-2-avonderg-nxu4-sanand14/frontend/table/table.html");
+//        driver.get("../../../../../frontend/table/table.html");
 //
 //        testTitles(driver);
 //        testLoadData(driver);
