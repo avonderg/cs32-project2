@@ -12,7 +12,6 @@ let ELEMENT_HANDLERS: {[key: number]: [HTMLElement, (arg0: HTMLElement) =>  Prom
 
 // Indicates the current element that the user is on
 // You can decide the type of this variable
-let currentIndex: number; // corresponds to ID of the element
 let current: string;
 let prev: string // ID of previous
 
@@ -23,7 +22,7 @@ let prev: string // ID of previous
 function speak(text: string) {
     if (VOICE_SYNTH) {
         // initialize a speech request using SpeechSynthesisUtterance
-        var utterance = new SpeechSynthesisUtterance(text);
+        let utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = VOICE_RATE;
 
         // listens for pause
@@ -185,7 +184,7 @@ async function pureTextHandlers(elt : HTMLElement): Promise<void> {
 
 /**
  * Generates handler functions for image elements
- * @param elt: HTMLElement input
+ * @param e: HTMLElement input
  */
 async function imgHandlers(e: HTMLElement): Promise<void> {
     if ((e as HTMLImageElement).alt != "") {
@@ -203,7 +202,6 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
     let type = (elt as HTMLInputElement).type
 
     document.body.addEventListener("keypress", function(event) {
-        // Number 13 is the "Enter" key on the keyboard
         if (event.key === "Enter") {
             // Cancel the default action, if needed
             event.preventDefault();
@@ -257,7 +255,6 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
     let button = elt as HTMLButtonElement
 
     document.body.addEventListener("keypress", function(event) {
-        // Number 13 is the "Enter" key on the keyboard
         if (event.key === "Enter") {
             // Cancel the default action, if needed
             event.preventDefault();
@@ -293,7 +290,6 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
  */
 async function linkHandlers(elt: HTMLElement): Promise<void> {
     document.body.addEventListener("keyup", function(event) {
-        // Number 13 is the "Enter" key on the keyboard
         if (event.key === "Enter") {
             // Cancel the default action, if needed
             event.preventDefault();
@@ -468,7 +464,7 @@ async function previous() {
     if (ELEMENT_HANDLERS[+current-2] != null) {
         VOICE_SYNTH.cancel();
         // @ts-ignore
-        document.getElementById(current).style.background = document.body.style.backgroundColor || "#fff";
+        document.getElementById(current).style.background = document.body.style.backgroundColor;
         current = String(+current-2)
     }
 }
@@ -491,10 +487,6 @@ async function start(curr: String) {
         await start(current)
     }
 
-    // for (currentIndex = 0; currentIndex < Object.keys(ELEMENT_HANDLERS).length; currentIndex++) {
-    //     current = ELEMENT_HANDLERS[currentIndex]
-    //     await current[1](current[0])
-    // }
     console.log('End');
 }
 

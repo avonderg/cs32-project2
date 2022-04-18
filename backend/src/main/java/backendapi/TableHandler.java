@@ -27,16 +27,18 @@ public class TableHandler implements Route {
   public String handle(Request req, Response res) {
     String tableName = "";
     JSONObject values = null;
+    String sortCol = "";
 
     try {
       values = new JSONObject(req.body());
       tableName = values.getString("name");
+      sortCol = values.getString("sortCol");
     } catch (JSONException e) {
       e.printStackTrace();
     }
 
     try {
-      return GSON.toJson(TableCommander.getDb().getTable(tableName));
+      return GSON.toJson(TableCommander.getDb().getTable(tableName, sortCol));
       // returns table
     } catch (IllegalArgumentException | SQLException e) {
       return GSON.toJson(e.getMessage());

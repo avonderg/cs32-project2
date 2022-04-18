@@ -19,7 +19,6 @@ let VOICE_RATE = 1;
 let ELEMENT_HANDLERS = {};
 // Indicates the current element that the user is on
 // You can decide the type of this variable
-let currentIndex; // corresponds to ID of the element
 let current;
 let prev; // ID of previous
 /**
@@ -29,7 +28,7 @@ let prev; // ID of previous
 function speak(text) {
     if (VOICE_SYNTH) {
         // initialize a speech request using SpeechSynthesisUtterance
-        var utterance = new SpeechSynthesisUtterance(text);
+        let utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = VOICE_RATE;
         // listens for pause
         utterance.addEventListener('pause', function (event) {
@@ -185,7 +184,7 @@ function pureTextHandlers(elt) {
 }
 /**
  * Generates handler functions for image elements
- * @param elt: HTMLElement input
+ * @param e: HTMLElement input
  */
 function imgHandlers(e) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -205,7 +204,6 @@ function inputHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         let type = elt.type;
         document.body.addEventListener("keypress", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -253,7 +251,6 @@ function buttonHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         let button = elt;
         document.body.addEventListener("keypress", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -285,7 +282,6 @@ function buttonHandlers(elt) {
 function linkHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         document.body.addEventListener("keyup", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -458,7 +454,7 @@ function previous() {
         if (ELEMENT_HANDLERS[+current - 2] != null) {
             VOICE_SYNTH.cancel();
             // @ts-ignore
-            document.getElementById(current).style.background = document.body.style.backgroundColor || "#fff";
+            document.getElementById(current).style.background = document.body.style.backgroundColor;
             current = String(+current - 2);
         }
     });
@@ -480,10 +476,6 @@ function start(curr) {
             current = String(+current + 1);
             yield start(current);
         }
-        // for (currentIndex = 0; currentIndex < Object.keys(ELEMENT_HANDLERS).length; currentIndex++) {
-        //     current = ELEMENT_HANDLERS[currentIndex]
-        //     await current[1](current[0])
-        // }
         console.log('End');
     });
 }

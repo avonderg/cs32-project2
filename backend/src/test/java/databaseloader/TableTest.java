@@ -18,11 +18,10 @@ public class TableTest {
     String[] loadDb = new String[]{"load_db", "../data/horoscopes.sqlite3"};
     TableCommander tableCommander = new TableCommander();
     tableCommander.handleCommand(loadDb);
-    Table horoscopes = TableCommander.getDb().getTable("horoscopes");
+    Table horoscopes = TableCommander.getDb().getTable("horoscopes", "1");
     assertEquals(2, horoscopes.getHeaders().size());
 
-    Table tas = TableCommander.getDb().getTable("tas");
+    Table tas = TableCommander.getDb().getTable("tas", "1");
     assertEquals(3, tas.getHeaders().size());
-
   }
 }

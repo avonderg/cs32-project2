@@ -120,7 +120,7 @@ public class TableLoader {
    * @throws SQLException if errors during SQL
    * @throws IllegalArgumentException if table name is null or table not exist
    */
-  public Table getTable(String tableName)
+  public Table getTable(String tableName, String sortCol)
       throws SQLException, IllegalArgumentException {
     if (tableName == null) {
       throw new IllegalArgumentException("ERROR: Cannot get null table.");
@@ -131,8 +131,8 @@ public class TableLoader {
       throw new IllegalArgumentException("ERROR: Table \"" + tableName + "\" does not exist.");
     }
 
-    // Prepare a statement to get everything from the table.
-    ResultSet dbRes = runCommand("SELECT * FROM " + tableName + ";");
+    // Prepare a statement to get everything from the table.  + "ORDER BY " + sortCol +
+    ResultSet dbRes = runCommand("SELECT * FROM " + tableName + " ORDER BY " + sortCol + ";");
     ResultSetMetaData dbResMeta = dbRes.getMetaData();
 
     // Get the column headers
