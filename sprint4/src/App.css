@@ -20,6 +20,18 @@ th {
   font-size: 14pt;
 }
 
+.awesomeButton {
+  height: 40px;
+  padding:10px;
+  width: 100px;
+  border-width: 0px;
+  background-color: #1e88e5;
+  color: white;
+  border-radius: 3px;
+  border-color: #1e88e5;
+  border-style: solid;
+}
+
 button:hover{
   cursor: pointer;
 }
@@ -136,18 +148,13 @@ tr:hover {
 }
 
 .colLeft {
-  /* flex: 50%; */
   vertical-align: top;
-
-  /* justify-content: center; */
   display: flex;
 }
 
 .colRight {
-  /* flex: 50%; */
   margin-left: 20px;
   vertical-align: top;
-  /* justify-content: center; */
   display: flex;
 }
 

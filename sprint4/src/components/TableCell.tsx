@@ -1,16 +1,15 @@
 import React from "react";
-// import "./App.css";
-import { useState } from "react";
-import axios from "axios";
-// @ts-ignore
-import { AwesomeButton } from "react-awesome-button";
-// @ts-ignore
-import "react-awesome-button/dist/styles.css";
 
+// interface representing the information for a TableCell
 interface TableCellInput {
   text: string;
 }
 
+/**
+ * creates a table cell.
+ * @param props a TableCellInput, the information that goes into the Tablecell
+ * @returns 
+ */
 function TableCell(props: TableCellInput) {
   return <td>{props.text}</td>;
 }

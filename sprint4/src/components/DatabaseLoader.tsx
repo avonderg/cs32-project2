@@ -6,19 +6,19 @@ import { AwesomeButton } from "react-awesome-button";
 // @ts-ignore
 import "react-awesome-button/dist/styles.css";
 
-// interface containing information that is the input to the 
-interface TableLoaderInput {
-  tableNames: string[];
+// interface containing information that is the input to the databaseloader
+interface DatabaseLoaderInput {
+  dbNames: string[];
   change: React.Dispatch<string>;
 }
 
 /**
- * creates the dropdown that allows users to choose a table.
- * @param props a TableLoaderInput containing the info needed to populate the 
+ * creates the dropdown that allows users to choose a database.
+ * @param props a DatabaseLoaderInput containing the info needed to populate the 
  * selection options
- * @returns a dropdown that lets one choose a table to load
+ * @returns a dropdown that lets one choose a database to load
  */
-function TableLoader(props: TableLoaderInput) {
+function DatabaseLoader(props: DatabaseLoaderInput) {
   /**
    * handles the event that an option is changed in the select menu
    * @param event the change event that we are handling
@@ -35,7 +35,7 @@ function TableLoader(props: TableLoaderInput) {
             <option value="" selected disabled hidden>
               Choose here
             </option>
-            {props.tableNames.map((x: string) => (
+            {props.dbNames.map((x: string) => (
               <option value={x}>{x}</option>
             ))}
           </select>
@@ -44,4 +44,4 @@ function TableLoader(props: TableLoaderInput) {
     </div>
   );
 }
-export default TableLoader;
+export default DatabaseLoader;

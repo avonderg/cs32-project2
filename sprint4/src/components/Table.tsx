@@ -9,6 +9,7 @@ import { AwesomeButton } from "react-awesome-button";
 // @ts-ignore
 import "react-awesome-button/dist/styles.css";
 
+// interface representing table input
 interface TableInput {
   name: string;
   headers: string[];
@@ -17,12 +18,18 @@ interface TableInput {
   sortFunc: (col: string) => void;
 }
 
+/**
+ * loads a table from a list of rows and other attributes
+ * @param props a TableInput containing the information needed to load a table
+ * @returns a loaded table
+ */
 function Table(props: TableInput) {
   const loadHeaders = () => {
     let tableHeaders = [];
     if (props.rows.length > 0) {
       tableHeaders.push(<th>Row #</th>);
     }
+    // creating the headers for the table
     for (let i = 0; i < props.headers.length; i++) {
       tableHeaders.push(
         <th>
@@ -30,7 +37,6 @@ function Table(props: TableInput) {
           <button
             className="sortButton"
             onClick={() => {
-              console.log("sorting by " + props.headers[i]);
               props.sortFunc(props.headers[i]);
             }}
           >
@@ -49,7 +55,7 @@ function Table(props: TableInput) {
     for (let i = 0; i < props.headers.length; i++) {
       headerMap.set(i, props.headers[i]);
     }
-    // then for each row, we create a row, passing in the record and the headermap
+    // for each row, we create a row, passing in the record and the headermap
     let rows = [];
     for (let i = 0; i < props.rows.length; i++) {
       let currRecord: Record<string, string> = props.rows[i];
