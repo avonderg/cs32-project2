@@ -34,7 +34,6 @@ type TableValues = {
 function Table(props: tableprop) {
 
     const rowMap = props.tableInfo.rows
-    // const colMap = props.tableInfo.cols
 
     const kb_status:string[] = [];
     const kb_text:string[][] = [];
@@ -82,23 +81,25 @@ function Table(props: tableprop) {
 
     console.log(output_table)
     for (var i = 0; i < output_table.kanban_status.length; i++) {
+
         var table_content:string = ""
+
         for(let j = 0; j < output_table.kanban_text[i].length; j++) {
             table_content = table_content + "\n" + output_table.kanban_text[i][j]
         }
-        if (output_table.kanban_status[i] == "1"){
+        if (output_table.kanban_status[i] == "1"){ // unassigned
             console.log("unassigned")
             unassigned_text.push(output_table.kanban_text[i])
         }
-        else if(output_table.kanban_status[i] == "2"){
+        else if(output_table.kanban_status[i] == "2"){ // need to start
             console.log("need to start")
             not_started.push(output_table.kanban_text[i])
         }
-        else if(output_table.kanban_status[i] == "3"){
+        else if(output_table.kanban_status[i] == "3"){ // in progress
             console.log("in progress")
             in_progress_text.push(output_table.kanban_text[i])
         }
-        else if (output_table.kanban_status[i] == "4"){
+        else if (output_table.kanban_status[i] == "4"){ // completed
             completed_text.push(output_table.kanban_text[i])
         }
     }

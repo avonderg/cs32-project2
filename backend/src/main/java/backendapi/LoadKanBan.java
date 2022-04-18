@@ -18,19 +18,23 @@ public class LoadKanBan implements Route {
      * Creates a new GSON to create Json String from Object.
      */
     private static final Gson GSON = new Gson();
+    private static final String TABLE_NAME = "block";
 
     /**
      * Handles a request to spark backend server and this route.
-     * @param request spark request (handled in typescript)
+     *
+     * @param request  spark request (handled in typescript)
      * @param response spark response (handled in typescript)
      * @return String representing JSON object
      */
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        String tableName = "block";
+        // NOTE: given database tables are named 'block', and therefore I follow this format
+//        String tableName = "block";
+
         // TODO: Handle errors on the frontend
         try {
-            return GSON.toJson(TableCommander.getDb().getTable(tableName));
+            return GSON.toJson(TableCommander.getDb().getTable(TABLE_NAME));
             // returns table
         } catch (IllegalArgumentException e) {
             return GSON.toJson(e.getMessage());
