@@ -1,11 +1,16 @@
 import React, {useState} from 'react';
-// import TableRow from 'TableRow'
-import TableRow from '../TableRow/TableRow'
+import Completed from '../Completed/Completed'
+import InProgress from '../InProgress/InProgress'
+import NeedToStart from '../NeedToStart/NeedToStart'
+import Unassigned from '../Unassigned/Unassigned'
+
+import "../../styles.css"
 
 type table = {
 
-    headerList: string[]
-    rowMap: Record<string,string>[];
+    headers: string[]
+    rows: Record<string,string>[];
+    // cols: Record<string,string>[];
 }
 
 type kanban_info = {
@@ -18,11 +23,19 @@ type tableprop = {
     setRowMap: (value: table) => void;
 }
 
+type TableValues = {
+    need_to_start: string[][],
+    unassigned: string[][],
+    in_progress: string[][],
+    completed: string[][]
+}
+
 
 function Table(props: tableprop) {
 
+    const rowMap = props.tableInfo.rows
+    // const colMap = props.tableInfo.cols
 
-    const rowMap = props.tableInfo.rowMap
     const kb_status:string[] = [];
     const kb_text:string[][] = [];
 
@@ -32,7 +45,7 @@ function Table(props: tableprop) {
         kanban_text: kb_text
     };
 
-    for(let i = 0; i < rowMap.length; i++) {
+    for (let i = 0; i < rowMap?.length; i++) {
 
         const relevant_columns:string[] = []
         relevant_columns[0] = "block_id"
@@ -45,14 +58,46 @@ function Table(props: tableprop) {
         kb_text.push([])
 
         // Save relevant columns from the database into the kanban datatype.
-        for(let j = 0; j < props.tableInfo.headerList.length; j++){
-            var header_name: string = props.tableInfo.headerList[j]
-            if(relevant_columns.includes(header_name)){
-                kb_text[i].push(curr_row[props.tableInfo.headerList[j]])
+        for(let j = 0; j < props.tableInfo.headers.length; j++){
+            var header_name: string = props.tableInfo.headers[j]
+            if (relevant_columns.includes(header_name)){
+                kb_text[i].push(curr_row[props.tableInfo.headers[j]])
             }
 
         }
     }
+
+    const not_started:string[][] = []
+    const unassigned_text:string[][] = []
+    const in_progress_text:string[][] = []
+    const completed_text:string[][] = []
+    const table_helper: TableValues = {
+        need_to_start: not_started,
+        unassigned: unassigned_text,
+        in_progress: in_progress_text,
+        completed: completed_text
+
+    }
+
+    for (var i = 0; i < output_table.kanban_status.length; i++) {
+        var table_content:string = ""
+        for(let j = 0; j < output_table.kanban_text[i].length; j++) {
+            table_content = table_content + "\n" + output_table.kanban_text[i][j]
+        }
+        if(output_table.kanban_status[i] == "Unassigned"){
+            unassigned_text.push(output_table.kanban_text[i])
+        }
+        else if(output_table.kanban_status[i] == "Need to Start"){
+            not_started.push(output_table.kanban_text[i])
+        }
+        else if(output_table.kanban_status[i] == "In Progress"){
+            in_progress_text.push(output_table.kanban_text[i])
+        }
+        else if(output_table.kanban_status[i] == "Completed"){
+            completed_text.push(output_table.kanban_text[i])
+        }
+    }
+
     return(
         <table className = "kanbanTable" id = "kanban_display">
             <tbody>
@@ -62,20 +107,16 @@ function Table(props: tableprop) {
                 <th>In Progress</th>
                 <th>Completed</th>
             </tr>
-            <TableRow kanban_status={output_table.kanban_status} kanban_text={output_table.kanban_text}/>
+            {table_helper.need_to_start.map(item => <NeedToStart text={item}/>)}
+            {table_helper.unassigned.map(item => <Unassigned text={item}/>)}
+            {table_helper.completed.map(item => <Completed text={item}/>)}
+            {table_helper.in_progress.map(item => <InProgress text={item}/>)}
             </tbody>
         </table>
     )
 
 }
 
-function displayTable(rowMap: Record<string,string>[]) {
-    const table = document.getElementById("kanban_display")! as HTMLTableElement
-    const newRow = table.insertRow();
-    const currCell = newRow.insertCell(1)
-    const cellContents = document.createTextNode("bla")
-    currCell.appendChild(cellContents)
-}
 
 
 export default Table;

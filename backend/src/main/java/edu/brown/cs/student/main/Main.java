@@ -100,7 +100,7 @@ public final class Main {
     Spark.post("/update", new TableUpdateHandler());
 
     Spark.get("/tableNames", new TableNameHandler());
-    Spark.get("/loadKanban", new TableHandler());
+    Spark.get("/loadKanban", new LoadKanBan());
 
     Spark.init();
   }

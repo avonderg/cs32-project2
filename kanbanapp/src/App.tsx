@@ -5,8 +5,9 @@ import "./styles.css"
 function App() {
 
   type table = {
-    headerList: string[];
-    rowMap: Record<string, string>[];
+    headers: string[];
+    rows: Record<string, string>[];
+    // cols: Record<string,string>[];
   }
 
   type selectedTable = {
@@ -17,7 +18,7 @@ function App() {
     command: string;
   }
 
-  const [currTableData, setCurrTableData] = useState<table>({headerList: ["empty"], rowMap:[{"empty": "empty"}]})
+  const [currTableData, setCurrTableData] = useState<table>({headers: ["empty"], rows:[{"empty": "empty"}]})
 
   const requestKanban = async() => {
     fetch("http://localhost:4567/loadKanban", {
@@ -26,15 +27,35 @@ function App() {
         "Access-Control-Allow-Origin": "*"
       },
     }).then((res: Response) => res.json()).then((tableData: table) => setCurrTableData(tableData));
-
   }
 
   const displayKanban = async() => {
-
     requestKanban()
-    console.log(currTableData)
   }
+  const updateKanban = async function(input: string) {
+    console.log("updating")
+    console.log(input)
+    var filter:string, table, tr, td, cell;
+    filter = input.toUpperCase()
+    table = document.getElementById("kanbantable")!;
+    console.log(table)
+    tr = table.getElementsByTagName("tr");
+    for (var i = 1; i < tr.length; i++) {
+      // Hide the row initially.
+      tr[i].style.display = "none";
 
+      td = tr[i].getElementsByTagName("td");
+      for (var j = 0; j < td.length; j++) {
+        cell = tr[i].getElementsByTagName("td")[j];
+        if (cell) {
+          if (cell.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+            break;
+          }
+        }
+      }
+    }
+  }
 
   return (
       <div className="App">
@@ -45,13 +66,17 @@ function App() {
 
         </div>
 
-        <div>
-          <button className = "loadButton" id = "loadButton" onClick={displayKanban}>
+        <div className = 'button-container'>
+          <button className = "loader" id = "loader" onClick={displayKanban}>
             <span className = "btn-text">Load Kanban</span>
           </button>
+
+          <input type = "text" id = "myInput" onKeyUp = {(e: React.KeyboardEvent<HTMLInputElement>)=> {
+            updateKanban((e.target as HTMLInputElement).value)
+          }} placeholder="Search Table"></input>
         </div>
 
-        <div className = "kanbantable">
+        <div className = "kanbandiv" id = "kanbantable">
           <Table tableInfo = {currTableData} setRowMap = {setCurrTableData}/>
         </div>
 
