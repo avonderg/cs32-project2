@@ -53,7 +53,8 @@ function Table(props: tableprop) {
         relevant_columns[2] = "block_content"
         relevant_columns[3] = "block_date"
         const curr_row = rowMap[i]
-        const curr_priority = rowMap[i]["name"]
+        const curr_priority = rowMap[i]["column"]
+        // console.log(rowMap)
         output_table.kanban_status[i] = curr_priority
         kb_text.push([])
 
@@ -79,24 +80,30 @@ function Table(props: tableprop) {
 
     }
 
+    console.log(output_table)
     for (var i = 0; i < output_table.kanban_status.length; i++) {
         var table_content:string = ""
         for(let j = 0; j < output_table.kanban_text[i].length; j++) {
             table_content = table_content + "\n" + output_table.kanban_text[i][j]
         }
-        if(output_table.kanban_status[i] == "Unassigned"){
+        if (output_table.kanban_status[i] == "1"){
+            console.log("unassigned")
             unassigned_text.push(output_table.kanban_text[i])
         }
-        else if(output_table.kanban_status[i] == "Need to Start"){
+        else if(output_table.kanban_status[i] == "2"){
+            console.log("need to start")
             not_started.push(output_table.kanban_text[i])
         }
-        else if(output_table.kanban_status[i] == "In Progress"){
+        else if(output_table.kanban_status[i] == "3"){
+            console.log("in progress")
             in_progress_text.push(output_table.kanban_text[i])
         }
-        else if(output_table.kanban_status[i] == "Completed"){
+        else if (output_table.kanban_status[i] == "4"){
             completed_text.push(output_table.kanban_text[i])
         }
     }
+
+    console.log(output_table)
 
     return(
         <table className = "kanbanTable" id = "kanban_display">
@@ -107,8 +114,8 @@ function Table(props: tableprop) {
                 <th>In Progress</th>
                 <th>Completed</th>
             </tr>
-            {table_helper.need_to_start.map(item => <NeedToStart text={item}/>)}
-            {table_helper.unassigned.map(item => <Unassigned text={item}/>)}
+            {table_helper.need_to_start.map(item => <Unassigned text={item}/>)}
+            {table_helper.unassigned.map(item => <NeedToStart text={item}/>)}
             {table_helper.completed.map(item => <Completed text={item}/>)}
             {table_helper.in_progress.map(item => <InProgress text={item}/>)}
             </tbody>
