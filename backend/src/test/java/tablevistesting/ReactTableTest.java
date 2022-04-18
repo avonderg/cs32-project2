@@ -18,10 +18,9 @@ import org.openqa.selenium.support.ui.Select;
 import java.time.Duration;
 import java.util.List;
 
-
 public class ReactTableTest {
   private RemoteWebDriver driver = null;
-  private String indexPath = "http://localhost:3000/";
+  private final String indexPath = "http://localhost:3000/";
 
   @Before
   public void setup() {
