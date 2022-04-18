@@ -26,6 +26,14 @@ public class TableLoader {
   private final Connection conn;
 
   /**
+   * closes the connection.
+   * @throws SQLException if we fail to close the connection
+   */
+  public void closeConnection() throws SQLException {
+    this.conn.close();
+  }
+
+  /**
    * Instantiates a connection to the specified SQL Database File.
    * @param filename name of the .sqlite3 file
    * @throws SQLException happens if DriverManager cannot connect to specified urlToDB
@@ -116,6 +124,7 @@ public class TableLoader {
    * Command that gets all data for specified table in the connected database.
    * Credit: logic from stew2003
    * @param tableName specified table name
+   * @param sortCol the column the results should be sorted by
    * @return Table object representing data in this table
    * @throws SQLException if errors during SQL
    * @throws IllegalArgumentException if table name is null or table not exist

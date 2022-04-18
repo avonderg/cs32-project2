@@ -2,6 +2,11 @@ package edu.brown.cs.student.main;
 
 // look into using these imports for your REPL!
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import backendapi.DBLoadHandler;
+import backendapi.DBNameHandler;
 import backendapi.TableDeleteHandler;
 import backendapi.TableHandler;
 import backendapi.TableInsertHandler;
@@ -97,6 +102,11 @@ public final class Main {
     // easier, but it’s not a good idea for deployment.
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
 
+    List<String> dbNames = new ArrayList<>();
+    dbNames.add("movies");
+    dbNames.add("horoscopes");
+    Spark.get("/dbNames", new DBNameHandler(dbNames));
+    Spark.post("/loadDB", new DBLoadHandler());
     Spark.post("/table", new TableHandler());
     Spark.post("/add", new TableInsertHandler());
     Spark.post("/delete", new TableDeleteHandler());

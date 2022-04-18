@@ -3,6 +3,8 @@ import { useState } from "react";
 import axios from "axios";
 import Table from "./Table";
 import TableLoader from "./TableLoader";
+import DatabaseLoader from "./DatabaseLoader";
+import { waitFor } from "@testing-library/dom";
 
 /**
  * Visualizes and contains the modification functionality of the table
@@ -10,11 +12,16 @@ import TableLoader from "./TableLoader";
  */
 function TableVisualizer() {
   const [dbNames, setDBNames] = useState([]);
+  const [dbName, setDBName] = useState("");
+
+  const [tableRetrieved, setTableRetrieved] = useState(false);
+
   const [currTable, setCurrTable] = useState("");
   const [tableName, setTableName] = useState("");
   const [tableRows, setTableRows] = useState([]);
   const [tableNames, setTableNames] = useState([]);
   const [tableHeaders, setTableHeaders] = useState([]);
+
   const [addInputs, setAddInputs] = useState(new Map());
   const [updateInputs, setUpdateInputs] = useState(new Map());
   const [rowToUpdate, setRowToUpdate] = useState("");
@@ -60,7 +67,7 @@ function TableVisualizer() {
       .catch((error) => {
         console.log(error);
       });
-  }
+  };
 
   /**
    * This makes a get request to get the names of the tables in the database.
@@ -69,12 +76,36 @@ function TableVisualizer() {
     axios
       .get("http://localhost:4567/tableNames", config)
       .then((response) => {
-        console.log(response.data);
         setTableNames(response.data);
+        setTableName(response.data[0]);
+      })
+      .then((response) => console.log("get names: ", tableNames))
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const loadDB = () => {
+    if (dbName == "") {
+      return;
+    }
+    const toSend = {
+      name: dbName,
+    };
+    axios
+      .post("http://localhost:4567/loadDB", toSend, config)
+      .then((response) => {
+        console.log(response.data);
+        getNames();
+        setTableName(tableNames[0]);
+        // console.log("loaded the following tables: " + tableNames);
+        // setTableName(tableNames[0]);
+        // console.log("Now the table name is: " + tableName);
       })
       .catch((error) => {
         console.log(error);
       });
+    setTableName(tableNames[0]);
   };
 
   /**
@@ -83,6 +114,7 @@ function TableVisualizer() {
    */
   const getTable = (sortCol: string) => {
     if (tableName == "") {
+      console.log("table name was null");
       return;
     }
     const toSend = {
@@ -92,10 +124,9 @@ function TableVisualizer() {
     axios
       .post("http://localhost:4567/table", toSend, config)
       .then((response) => {
+        console.log("getting table: " + tableName);
+        console.log("the database is: " + dbName);
         console.log(response.data);
-        console.log(response.data["rows"]);
-        console.log(response.data["headers"]);
-
         setTableRows(response.data["rows"]);
         setTableHeaders(response.data["headers"]);
         setCurrTable(tableName);
@@ -143,7 +174,7 @@ function TableVisualizer() {
 
   /**
    * makes a post request to update a given row in the table.
-   * @param toSend of type UpdateParams, the information we are passing to the 
+   * @param toSend of type UpdateParams, the information we are passing to the
    * api to make the post request.
    */
   const updateRow = (toSend: UpdateParams) => {
@@ -186,7 +217,7 @@ function TableVisualizer() {
 
   /**
    * Creates a list of input boxes to serve the update feature.
-   * @returns a list of inputs, one for the row number, and one for each column 
+   * @returns a list of inputs, one for the row number, and one for each column
    * of the table.
    */
   const loadUpdateInputBoxes = () => {
@@ -229,19 +260,29 @@ function TableVisualizer() {
    * calls getNames when the page is loaded.
    */
   useEffect(() => {
-    // getDbNames();
-    getNames(); // should call on load DB click
+    getDbNames();
   }, []);
 
   return (
     <div>
       <h1>Welcome to Batman Table Visualizer</h1>
-      <h3>Please choose a table to load</h3>
+      <h3>Please choose a database and table to load</h3>
       <div className="tableLoaderDiv">
+        <DatabaseLoader dbNames={dbNames} change={setDBName} />
+        <button
+          className="awesomeButton dbLoadButton"
+          onClick={() => {
+            loadDB();
+            console.log("these are the current tables: " + tableNames);
+          }}
+        >
+          Load
+        </button>
         <TableLoader tableNames={tableNames} change={setTableName} />
         <button
-          className="awesomeButton"
+          className="awesomeButton tableLoadButton"
           onClick={() => {
+            console.log(tableName);
             getTable("1");
           }}
         >

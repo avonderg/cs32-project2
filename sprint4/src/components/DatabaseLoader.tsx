@@ -1,10 +1,4 @@
 import React from "react";
-import { useState } from "react";
-import axios from "axios";
-// @ts-ignore
-import { AwesomeButton } from "react-awesome-button";
-// @ts-ignore
-import "react-awesome-button/dist/styles.css";
 
 // interface containing information that is the input to the databaseloader
 interface DatabaseLoaderInput {
@@ -25,13 +19,14 @@ function DatabaseLoader(props: DatabaseLoaderInput) {
    */
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     event.preventDefault();
+    console.log("chaning database");
     props.change(event.target.value);
   };
   return (
     <div>
       <div className="tableLoaderDiv">
         <div>
-          <select onChange={handleChange} className="selectTable">
+          <select onChange={handleChange} className="selectDB">
             <option value="" selected disabled hidden>
               Choose here
             </option>
