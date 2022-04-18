@@ -30,9 +30,6 @@ public class DBLoadHandler implements Route {
     try {
       values = new JSONObject(req.body());
       dbName = values.getString("name");
-//      if (TableCommander.getDb() != null) {
-//        TableCommander.getDb().closeConnection();
-//      }
       TableCommander.setDb(new TableLoader("../data/" + dbName + ".sqlite3"));
       return GSON.toJson("Successfully loaded database: " + dbName);
       // returns table names
