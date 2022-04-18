@@ -43,6 +43,7 @@ function speak(text) {
 }
 window.onload = () => {
     generateHandlers();
+    console.log('generated handlers');
     document.body.innerHTML = `
         <div id="screenReader">
             <button>Start [Space]</button>
@@ -171,6 +172,7 @@ function handleElementSolo(htmlElt) {
  */
 function pureTextHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('entered pureTextHandlers(); current=' + current);
         if (elt.tagName == "TITLE") {
             yield speak("Title " + elt.textContent);
         }
@@ -188,6 +190,7 @@ function pureTextHandlers(elt) {
  */
 function imgHandlers(e) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('entered imgHandlers(); current=' + current);
         if (e.alt != "") {
             yield speak("This is a picture of " + e.alt);
         }
@@ -203,6 +206,7 @@ function imgHandlers(e) {
 function inputHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         let type = elt.type;
+        console.log('entered inputHandlers(); current=' + current);
         document.body.addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
@@ -235,7 +239,8 @@ function inputHandlers(elt) {
                 if (event.key === "Escape") {
                     // Cancel the default action, if needed
                     event.preventDefault();
-                    VOICE_SYNTH.cancel();
+                    // VOICE_SYNTH.cancel();
+                    resume();
                     // Trigger the button element with a click
                     resolve();
                 }
@@ -250,6 +255,7 @@ function inputHandlers(elt) {
 function buttonHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         let button = elt;
+        console.log('entered buttonHandlers(); current=' + current);
         document.body.addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
@@ -268,7 +274,7 @@ function buttonHandlers(elt) {
                     event.preventDefault();
                     // cancel the current utterance and continue the readings
                     console.log("RESOLVED");
-                    VOICE_SYNTH.cancel();
+                    resume();
                     resolve();
                 }
             });
@@ -281,6 +287,7 @@ function buttonHandlers(elt) {
  */
 function linkHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('entered linkHandlers(); current=' + current);
         document.body.addEventListener("keyup", function (event) {
             if (event.key === "Enter") {
                 // Cancel the default action, if needed
@@ -396,7 +403,7 @@ function tableHandlers(elt) {
     return __awaiter(this, void 0, void 0, function* () {
         if (elt.tagName == "CAPTION" || elt.tagName == "TH" || elt.tagName === "TD") {
             if (elt.children.length < 0) {
-                yield speak(elt.textContent);
+                yield speak(elt.textContent); // reads table
             }
         }
     });
@@ -413,9 +420,9 @@ function highlight(elt) {
         if (prevElt != null) {
             prevElt.style.background = document.body.style.backgroundColor;
         }
-        const curr = document.getElementById(elt.id);
+        const curr = document.getElementById(elt.id); // gets curr
         if (curr != null) {
-            curr.style.background = "#fff8a6";
+            curr.style.background = "#fff8a6"; // highlights element
         }
     });
 }
@@ -455,7 +462,7 @@ function previous() {
             VOICE_SYNTH.cancel();
             // @ts-ignore
             document.getElementById(current).style.background = document.body.style.backgroundColor;
-            current = String(+current - 2);
+            current = String(+current - 2); // changes value of current to move to prev element
         }
     });
 }
@@ -470,11 +477,11 @@ function start(curr) {
         if (currentElement != null) {
             console.log(ELEMENT_HANDLERS);
             console.log("ON " + current);
-            yield highlight(currentElement[0]);
+            yield highlight(currentElement[0]); // higlights current elt
             yield currentElement[1](currentElement[0]);
             prev = current;
-            current = String(+current + 1);
-            yield start(current);
+            current = String(+current + 1); // increases current by one
+            yield start(current); // starts
         }
         console.log('End');
     });
@@ -503,10 +510,12 @@ function globalKeystrokes(event) {
         start("0");
     }
     else if (event.key === "ArrowRight") {
+        console.log('right arrow clicked; current=' + current);
         event.preventDefault();
         changeVoiceRate(1.1);
     }
     else if (event.key === "ArrowLeft") {
+        console.log('left arrow clicked; current=' + current);
         event.preventDefault();
         changeVoiceRate(0.9);
     }
@@ -520,9 +529,11 @@ function globalKeystrokes(event) {
         }
     }
     else if (event.key == "ArrowUp") {
+        console.log('up arrow clicked; current=' + current);
         previous();
     }
     else if (event.key == "ArrowDown") {
+        console.log('down arrow clicked; current=' + current);
         next();
     }
 }
