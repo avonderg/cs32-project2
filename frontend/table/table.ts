@@ -53,6 +53,7 @@ function updateDropdown(tableNames : string[]) : void {
     dropdown.innerHTML = "";
     dropdown.innerHTML += "<select name=\"tables\" id=\"tableNames\"></select>"; 
     
+    
     let tableNamesElement : HTMLSelectElement = document.getElementById("tableNames") as HTMLSelectElement; 
     tableNames.forEach((table : string) => tableNamesElement.innerHTML += `<option value=\"${table}\">${table}</option>`);
     // added all the table names to the drop down menu
@@ -88,7 +89,6 @@ async function load() : Promise<void> {
 function updateTable(tableData : Table) : void{
     table.innerHTML = "";
     let headerRow : HTMLTableRowElement = table.insertRow()
-
     let headerMap : Map<number, string>  = insertHeaders(tableData.headers, headerRow)
     // returns map from column index to header so that can insert row data at appropriate positions
 
@@ -101,12 +101,14 @@ function updateTable(tableData : Table) : void{
 function insertHeaders(headers : string[], headerRow : HTMLTableRowElement) : Map<number, string> {
     let map : Map<number, string>  = new Map<number, string>();
 
-    let rowID : HTMLTableCellElement = headerRow.insertCell(0)
+    let rowID : HTMLTableCellElement = document.createElement("th"); //headerRow.insertCell(0)
     rowID.innerHTML = "row";
+    headerRow.appendChild(rowID);
 
     for (let i = 0; i < headers.length; i++) {
-        let currCell : HTMLTableCellElement = headerRow.insertCell(i + 1)
-        currCell.innerHTML = headers[i]; 
+        let currCell : HTMLTableCellElement =  document.createElement("th");//headerRow.insertCell(i + 1)
+        currCell.innerHTML = headers[i];
+        headerRow.appendChild(currCell); 
         map.set(i, headers[i])
     }
 
@@ -174,6 +176,7 @@ async function addRow() : Promise<void> {
     let addValues : HTMLInputElement = document.getElementById("add_values") as HTMLInputElement;
 
     let tableNames : HTMLSelectElement = document.getElementById("tableNames") as HTMLSelectElement;
+
 
     const addParams : AddParams = {
         name: tableNames.value,

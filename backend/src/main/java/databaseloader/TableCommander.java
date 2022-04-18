@@ -1,12 +1,6 @@
 package databaseloader;
 
-
-import database.DatabaseCommander;
 import edu.brown.cs.student.main.CommandAcceptor;
-
-import java.io.FileNotFoundException;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -14,7 +8,6 @@ import java.sql.SQLException;
  * db loading as well as testing.
  */
 public class TableCommander implements CommandAcceptor {
-  private final Connection conn = null;
   private static TableLoader db = null;
 
   /**
@@ -23,9 +16,6 @@ public class TableCommander implements CommandAcceptor {
    */
   public static TableLoader getDb() {
     return db;
-  }
-  public static void setDb(TableLoader t) {
-    db = t;
   }
 
   /**
@@ -55,14 +45,5 @@ public class TableCommander implements CommandAcceptor {
         }
         break;
     }
-  }
-
-  /**
-   * Method to print the result set.
-   * @param results a ResultSet from a query.
-   * @throws SQLException if the results do not have metadata.
-   */
-  public void printResults(ResultSet results) throws SQLException {
-    DatabaseCommander.printResults(results);
   }
 }
