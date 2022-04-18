@@ -1,36 +1,29 @@
 package selenium;
-
 // Remember to add the Maven dependency! You may also
 // need to option-enter (alt-enter) and pick a
 // "Maven: add ... to classpath" option.
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.Test;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.Color;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
 
-public class seleniumTest {
+public class SeleniumTest {
 
   /**
    * Calls the runExample function, which allows the HTML file to be opened on a Safari browser.
    */
-  public static void start() throws InterruptedException {
-//         There will be various messages in the console...
-//         (By default, Selenium prints a lot of info)
+  public void start() throws InterruptedException {
     WebDriverManager.safaridriver().setup();
     runExample(
         "file:///Users/alexandravondergoltz/Desktop/cs32/project-2-avonderg-nxu4-sanand14/frontend/table/table.html");
@@ -39,8 +32,11 @@ public class seleniumTest {
 
   /**
    * Runs each of the appropriate tester methods for the HTML test file.
+   *
+   * @param path
+   * @throws InterruptedException
    */
-  public static void runExample(String path) throws InterruptedException {
+  public static void runExample(String path) {
     SafariOptions options = new SafariOptions();
     SafariDriver driver = new SafariDriver(options);
     driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500)); // waits
@@ -48,8 +44,7 @@ public class seleniumTest {
 
     driver.get(path);
     testTitles(driver);
-    testLoadData(driver, actions);
-//        testInputs(driver, actions);
+    testLoadData(driver);
     testStyles(driver);
 
     driver.quit();
@@ -67,19 +62,18 @@ public class seleniumTest {
     System.out.println("- - - - - - - - - - - - - - - - - - - -");
 
     // TEST: title is loaded correctly onto page
-    List<WebElement> table_titles = driver.findElements(By.tagName("h1"));
-    System.out.println("Webpage header is: " + table_titles.get(1)
-        .getText()); // gets the second element in the list -> corresponding to title
+    List<WebElement> tableTitles = driver.findElements(By.tagName("h1"));
+    // gets the second element in the list -> corresponding to title
+    System.out.println("Webpage header is: " + tableTitles.get(1).getText());
     System.out.println("- - - - - - - - - - - - - - - - - - - -");
   }
 
   /**
    * Tests that the load data button can be pressed, and data is loaded onto appropriate tables correctly.
    *
-   * @param driver  - SafariDriver
-   * @param actions - Actions object
+   * @param driver - SafariDriver
    */
-  public static void testLoadData(SafariDriver driver, Actions actions) {
+  public static void testLoadData(SafariDriver driver) {
     // TEST: 'load data' button can be pressed in order to load dynamic table
     List<WebElement> buttons = driver.findElements(By.tagName("button"));
 
@@ -165,7 +159,7 @@ public class seleniumTest {
   }
 
   /**
-   * Tests that font styles are displayed correctly
+   * Tests that font styles are displayed correctly.
    *
    * @param driver
    */
@@ -214,40 +208,8 @@ public class seleniumTest {
     System.out.println("Table Header Font Text Alignment -> " + fonttxtAlign2);
 
     System.out.println("- - - - - - - - - - - - - - - - - - - -");
-    String bckgclr = driver.findElement(By.xpath("/html/body"))
-        .getCssValue("background-color");
+    String bckgclr = driver.findElement(By.xpath("/html/body")).getCssValue("background-color");
     System.out.println("Webpage background color: " + bckgclr);
     System.out.println("- - - - - - - - - - - - - - - - - - - -");
-//        WebElement first_row = driver.findElement(By.xpath("//*[@id=\"displayTable\"]/tbody/tr[1]"));
-//        WebElement second_row = driver.findElement(By.xpath("//*[@id=\"displayTable\"]/tbody/tr[2]"));
-//        //Instantiating Actions class
-//        Actions actions = new Actions(driver);
-//        //Hovering on main menu
-//        actions.moveToElement(first_row).build().perform();
-//        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-//        String first_row_color = first_row.getCssValue("background-color");
-//        // compare to color of the other rows, which are not highlighted
-//        String second_row_color = second_row.getCssValue("background-color");
-//        if (!first_row_color.equals(second_row_color)) {
-//            System.out.println("Current row is highlighted");
-//        }
-//
-//        String color = driver.findElement(By.xpath("/html/body/div[2]/table/tbody")).getCssValue("color");
-//
-//        String backcolor = driver.findElement(By.xpath("/html/body/div[2]/table/tbody")).getCssValue("background-color");
-//
-//        System.out.println(color);
-//
-//        System.out.println(backcolor);
-//
-//        if(!color.equals(backcolor)){
-//            System.out.println("Text is highlighted!");
-//        }
-//
-//        else{
-//            System.out.println("Text is not highlighted!");
-//        }
-
   }
-
 }

@@ -7,11 +7,13 @@ import java.util.List;
 
 import backendapi.DBLoadHandler;
 import backendapi.DBNameHandler;
+import backendapi.LoadKanBan;
 import backendapi.TableDeleteHandler;
 import backendapi.TableHandler;
 import backendapi.TableInsertHandler;
 import backendapi.TableNameHandler;
 import backendapi.TableUpdateHandler;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import spark.Spark;
@@ -112,6 +114,7 @@ public final class Main {
     Spark.post("/delete", new TableDeleteHandler());
     Spark.post("/update", new TableUpdateHandler());
     Spark.get("/tableNames", new TableNameHandler());
+    Spark.get("/loadKanban", new LoadKanBan());
 
     Spark.init();
   }

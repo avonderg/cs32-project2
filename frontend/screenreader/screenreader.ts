@@ -34,16 +34,15 @@ function speak(text: string) {
 
         // begins to speak
 
-        console.log("Rate: " + utterance.rate)
         return new Promise<void>((resolve) => {
             utterance.onend = () => resolve()
         })
     }
 }
 
-
 window.onload = () => {
     generateHandlers();
+    console.log('generated handlers')
     document.body.innerHTML = `
         <div id="screenReader">
             <button>Start [Space]</button>
@@ -68,52 +67,115 @@ window.onload = () => {
     document.addEventListener("keydown", globalKeystrokes);
 }
 
+let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE"] // "CAPTION", "TH", "TD"
+
 /**
  * Gets all the elements by their tagnames, sets their ID's, and inserts each element into the global
  * ELEMENT_HANDLERS array along with their handler functions
  */
 function generateHandlers(): void {
     // gets HTML elements
-    const collection : HTMLCollectionOf<Element> = document.getElementsByTagName("*");
+
+    let collection : HTMLCollectionOf<Element> = document.getElementsByTagName("*");
+    console.log(collection)
 
     // iterate through all elements in DOM
+    let toSkip: Array<number> = [];
     let i = 0;
-    for (let e of collection as any) {
-
-        const htmlElt = e as HTMLElement
-        let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
-        let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
+    let index = 0;
+    for (let e of collection as any){
+        if (toSkip.indexOf(index) == -1) {
+            const htmlElt = e as HTMLElement        
+            console.log(index)
 
         // store elements and associated handlers in ELEMENT_HANDLERS
-        if (textTags.indexOf(htmlElt.tagName) > -1) {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => pureTextHandlers(x)]
-        } else if (htmlElt.tagName == "IMG") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => imgHandlers(x)]
-        } else if (htmlElt.tagName == "A") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => linkHandlers(x)]
-        } else if (htmlElt.tagName == "INPUT") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => inputHandlers(x)]
-        }
-        else if (htmlElt.tagName == "BUTTON") {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => buttonHandlers(x)]
-        }
-        else if (tableTags.indexOf(htmlElt.tagName) > -1) {
-            ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
-        } else {
-            continue;
-        }
+            let isElement : boolean = handleElement(htmlElt, i);
+            if (htmlElt.tagName == "TABLE") {
+                let numberChildren : number = htmlElt.getElementsByTagName("*").length
+                console.log(htmlElt.getElementsByTagName("*"))
+                console.log(i)
+                console.log(index)
 
-        // assign element an id
-        htmlElt.id = String(i);
-        i = i+1
+                for (let j : number = index + 1; j < index + 1 + numberChildren; j ++) {
+                    toSkip.push(j);
+                }
+                console.log("ADDING ELMENTS TO SKIP")
+                console.log(toSkip)
+
+            }
+            if (isElement) {
+                // assign element an id
+                htmlElt.id = String(i);
+                i = i+1
+            }
+        }
+        index = index + 1;
     }
 }
+
+function countAllDescendants(node : Node, count : number) {
+    for (var i = 0; i < node.childNodes.length; i++) {
+        var child = node.childNodes[i];
+        count = count + 1;
+        countAllDescendants(child, count);
+    }
+}
+
+function handleElement(htmlElt: HTMLElement, i: number): boolean {
+    console.log("Handled elt " + htmlElt.tagName)
+    if (textTags.indexOf(htmlElt.tagName) > -1) {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => pureTextHandlers(x)]
+    } else if (htmlElt.tagName == "IMG") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => imgHandlers(x)]
+    } else if (htmlElt.tagName == "A") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => linkHandlers(x)]
+    } else if (htmlElt.tagName == "INPUT") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => inputHandlers(x)]
+    }
+    else if (htmlElt.tagName == "BUTTON") {
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => buttonHandlers(x)]
+    }
+    else if (htmlElt.tagName == "TABLE") {
+        console.log("GOT HERE");
+        ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableArriveHandler(x)]
+    } 
+    else {
+        return false;
+    }
+    return true;
+}
+
+function handleElementSolo(htmlElt: HTMLElement): boolean {
+    console.log("Handled elt " + htmlElt.tagName)
+    if (textTags.indexOf(htmlElt.tagName) > -1) {
+        pureTextHandlers(htmlElt)
+    } else if (htmlElt.tagName == "IMG") {
+        imgHandlers(htmlElt)
+    } else if (htmlElt.tagName == "A") {
+        linkHandlers(htmlElt)
+    } else if (htmlElt.tagName == "INPUT") {
+        inputHandlers(htmlElt)
+    }
+    else if (htmlElt.tagName == "BUTTON") {
+        buttonHandlers(htmlElt)
+    }
+    else if (htmlElt.tagName == "TABLE") {
+        console.log("GOT HERE");
+        tableArriveHandler(htmlElt)
+    } 
+    else {
+        return false;
+    }
+    return true;
+}
+
 
 /**
  * Generates handler functions for text elements
  * @param elt: HTMLElement input
  */
 async function pureTextHandlers(elt : HTMLElement): Promise<void> {
+    console.log('entered pureTextHandlers(); current='+current)
     if (elt.tagName == "TITLE") {
         await speak("Title " + (elt.textContent as string))
     } else if (elt.tagName == "LABEL"){
@@ -128,6 +190,7 @@ async function pureTextHandlers(elt : HTMLElement): Promise<void> {
  * @param e: HTMLElement input
  */
 async function imgHandlers(e: HTMLElement): Promise<void> {
+    console.log('entered imgHandlers(); current='+current)
     if ((e as HTMLImageElement).alt != "") {
         await speak("This is a picture of " + (e as HTMLImageElement).alt as string)
     } else {
@@ -141,12 +204,11 @@ async function imgHandlers(e: HTMLElement): Promise<void> {
  */
 async function inputHandlers(elt: HTMLElement): Promise<void> {
     let type = (elt as HTMLInputElement).type
-
+    console.log('entered inputHandlers(); current='+current)
     document.body.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             // Cancel the default action, if needed
             event.preventDefault();
-
             // trigger button element
             elt.focus();
             // differentiate between different types of inputs
@@ -161,8 +223,7 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
                     }
                 }
             }
-            else if (type == "submit") // submit button
-            {
+            else if (type == "submit") { // submit button
                 document.getElementById(current)!.click();
             }
 
@@ -182,7 +243,8 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
                 // Cancel the default action, if needed
                 event.preventDefault();
 
-                VOICE_SYNTH.cancel();
+                // VOICE_SYNTH.cancel();
+                resume()
                 // Trigger the button element with a click
                 resolve();
             }
@@ -196,7 +258,7 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
  */
 async function buttonHandlers(elt: HTMLElement): Promise<void> {
     let button = elt as HTMLButtonElement
-
+    console.log('entered buttonHandlers(); current='+current)
     document.body.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             // Cancel the default action, if needed
@@ -220,12 +282,11 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
 
                 // cancel the current utterance and continue the readings
                 console.log("RESOLVED");
-                VOICE_SYNTH.cancel();
+                resume();
                 resolve();
             }
         });
     })
-
 }
 
 /**
@@ -233,6 +294,7 @@ async function buttonHandlers(elt: HTMLElement): Promise<void> {
  * @param elt: HTMLElement input
  */
 async function linkHandlers(elt: HTMLElement): Promise<void> {
+    console.log('entered linkHandlers(); current='+current)
     document.body.addEventListener("keyup", function(event) {
         if (event.key === "Enter") {
             // Cancel the default action, if needed
@@ -245,6 +307,7 @@ async function linkHandlers(elt: HTMLElement): Promise<void> {
 
     return new Promise<void>((resolve) => {
         document.body.addEventListener("keyup", function(event) {
+
             if (event.key === "Escape") {
                 // Cancel the default action, if needed
                 event.preventDefault();
@@ -262,10 +325,92 @@ async function linkHandlers(elt: HTMLElement): Promise<void> {
  * Generates handler functions for table elements
  * @param elt:  HTMLElement input
  */
+async function tableArriveHandler(elt: HTMLElement): Promise<void> {
+    let columns : number  = (elt as HTMLTableElement).rows[0].cells.length
+    let rows : number = (elt as HTMLTableElement).rows.length
+    await speak("Reached a table with " + rows + " rows and " + columns + " columns"  as string)
+    await speak("Press w, s, a, and d to navigate. Press r to read. Press p for position. Press l to leave."  as string)
+    // modality for table 
+
+    let current_row : number = 0
+    let current_col : number = 0
+
+    return new Promise<void>((resolve) => {
+        document.body.addEventListener("keyup", async function(event) {
+
+            let table : HTMLTableElement = (elt as HTMLTableElement)
+    
+            if (event.key === "p") {
+                VOICE_SYNTH.cancel();
+                await speak("Currently at row " + current_row + " and column " + current_col)
+            }
+            if (event.key === "r") {
+                let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                tableCellHandler(cell)
+            }
+            if (event.key === "d") {
+                VOICE_SYNTH.cancel();
+                if (current_col < table.rows[current_row].cells.length - 1) {
+                    current_col = current_col + 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    tableCellHandler(cell)
+                }
+            } else if (event.key === "a") {
+                VOICE_SYNTH.cancel();
+                if (current_col > 0) {
+                    current_col = current_col - 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    tableCellHandler(cell)
+                }
+            } else if (event.key == "w") {
+                VOICE_SYNTH.cancel();
+                if (current_row > 0) {
+                    current_row = current_row - 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    tableCellHandler(cell)
+                }
+            } else if (event.key == "s") {
+                VOICE_SYNTH.cancel();
+                if (current_row < rows - 1) {
+                    current_row = current_row + 1;
+                    let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                    tableCellHandler(cell)
+                }
+            }
+            else if (event.key == "l") {
+                VOICE_SYNTH.cancel();
+                resolve()
+            }
+        });
+    })
+}
+
+/**
+ * Generates handler functions for table cell elements. Handles 
+ * DOM children elements
+ * @param cell:  HTMLTableCellElement input
+ */
+async function tableCellHandler(cell: HTMLTableCellElement): Promise<void> {
+    let children : HTMLCollectionOf<Element> = cell.children
+    console.log(children)
+    for (let child of children as any) {
+        handleElementSolo((child as HTMLElement))
+    }
+    if (children.length == 0) {
+        await speak(cell.textContent as string)
+        // only reads textContent if not have children (otherwise double read)
+    }
+
+}
+
+/**
+ * Generates handler functions for table elements
+ * @param elt:  HTMLElement input
+ */
 async function tableHandlers(elt: HTMLElement): Promise<void> {
     if (elt.tagName == "CAPTION" || elt.tagName == "TH" || elt.tagName === "TD"){
         if (elt.children.length<0) {
-            await speak(elt.textContent as string)
+            await speak(elt.textContent as string) // reads table
         }
     }
 }
@@ -281,13 +426,12 @@ async function highlight(elt: Element): Promise<void>{
 
     // resets prev element's background color
     if ( prevElt != null) {
-        // prevElt.style.background = document.body.style.backgroundColor || "#0000ffff";
         prevElt.style.background = document.body.style.backgroundColor;
     }
 
-    const curr = document.getElementById(elt.id);
+    const curr = document.getElementById(elt.id); // gets curr
     if( curr != null) {
-        curr.style.background = "#fff8a6";
+        curr.style.background = "#fff8a6"; // highlights element
     }
 
 }
@@ -327,7 +471,7 @@ async function previous() {
         VOICE_SYNTH.cancel();
         // @ts-ignore
         document.getElementById(current).style.background = document.body.style.backgroundColor;
-        current = String(+current-2)
+        current = String(+current-2) // changes value of current to move to prev element
     }
 }
 
@@ -335,16 +479,18 @@ async function previous() {
  * Starts reading the page continuously.
  */
 async function start(curr: String) {
-    console.log('Start');
     let currentElement =  ELEMENT_HANDLERS[+current]
+    console.log(ELEMENT_HANDLERS)
+    console.log(current)
 
     if (currentElement != null) {
+        console.log(ELEMENT_HANDLERS)
         console.log("ON " + current)
-        await highlight(currentElement[0])
+        await highlight(currentElement[0]) // higlights current elt
         await currentElement[1](currentElement[0])
         prev = current
-        current = String(+current+1)
-        await start(current)
+        current = String(+current+1) // increases current by one
+        await start(current) // starts
     }
 
     console.log('End');
@@ -353,16 +499,16 @@ async function start(curr: String) {
 /**
  * Pauses the reading of the page.
  */
- function pause() {
-     VOICE_SYNTH.pause();
+function pause() {
+    VOICE_SYNTH.pause();
 }
 
- /**
+/**
  * Resumes the reading of the page.
  */
-  function resume() {
-      VOICE_SYNTH.resume();
- }
+function resume() {
+    VOICE_SYNTH.resume();
+}
 
 /**
  * Listens for keydown events.
@@ -375,9 +521,11 @@ function globalKeystrokes(event: KeyboardEvent): void {
         current = "0"
         start("0");
     } else if (event.key === "ArrowRight") {
+        console.log('right arrow clicked; current='+current)
         event.preventDefault();
         changeVoiceRate(1.1);
     } else if (event.key === "ArrowLeft") {
+        console.log('left arrow clicked; current='+current)
         event.preventDefault();
         changeVoiceRate(0.9);
     }
@@ -391,9 +539,11 @@ function globalKeystrokes(event: KeyboardEvent): void {
         }
     }
     else if (event.key == "ArrowUp") {
+        console.log('up arrow clicked; current='+current)
         previous();
     }
     else if (event.key == "ArrowDown") {
+        console.log('down arrow clicked; current='+current)
         next();
     }
 }

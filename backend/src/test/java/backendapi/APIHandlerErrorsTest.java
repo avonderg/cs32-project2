@@ -1,27 +1,29 @@
-//package backendapi;
-//
-//import com.google.gson.Gson;
-//import databaseloader.TableCommander;
-//import org.json.JSONArray;
-//import org.json.JSONException;
-//import org.json.JSONObject;
-//import org.junit.Assert;
-//import org.junit.Before;
-//import org.junit.Test;
-//
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//import java.io.InputStreamReader;
-//import java.io.OutputStream;
-//import java.net.HttpURLConnection;
-//import java.net.URL;
-//import java.net.URLConnection;
-//import java.nio.charset.StandardCharsets;
-//import java.sql.SQLException;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//public class APIHandlerErrorsTest {
+package backendapi;
+
+import com.google.gson.Gson;
+import databaseloader.TableCommander;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class APIHandlerErrorsTest {
+
+
 //  @Before
 //  public void aaLoadDatabase() {
 //    TableCommander commander = new TableCommander();
@@ -156,4 +158,5 @@
 //      Assert.assertEquals(12, TableCommander.getDb().getTable("horoscopes").getNumRows());
 //    }
 //  }
-//}
+}
+

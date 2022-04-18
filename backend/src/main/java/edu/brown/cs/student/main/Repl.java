@@ -71,7 +71,7 @@ public class Repl {
     StarCommander starCommander = new StarCommander();
     APICommander apiCommander = new APICommander();
     DatabaseCommander dbCommander = new DatabaseCommander();
-    seleniumCommander sCommander = new seleniumCommander();
+    SeleniumCommander sCommander = new SeleniumCommander();
 
 
     createCommand("insert_bf", bloomCommander);

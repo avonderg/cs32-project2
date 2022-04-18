@@ -1,35 +1,35 @@
-//package backendapi;
-//
-//import client.ApiClient;
-//import client.ClientRequestGenerator;
-//import client.EndpointRequestGenerator;
-//import client.Method;
-//import com.google.gson.Gson;
-//import org.json.JSONArray;
-//import org.json.JSONException;
-//import org.json.JSONObject;
-//import org.junit.Assert;
-//import org.junit.FixMethodOrder;
-//import org.junit.Test;
-//import org.junit.runners.MethodSorters;
-//
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//import java.io.InputStreamReader;
-//import java.io.OutputStream;
-//import java.net.HttpURLConnection;
-//import java.net.URL;
-//import java.net.URLConnection;
-//import java.net.http.HttpRequest;
-//import java.nio.charset.StandardCharsets;
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.List;
-//
-//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-//public class APIHandlerTest {
-//  // need to run ./run --gui and load database while running these tests
-//
+package backendapi;
+
+import client.ApiClient;
+import client.ClientRequestGenerator;
+import client.EndpointRequestGenerator;
+import client.Method;
+import com.google.gson.Gson;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class APIHandlerTest {
+  // need to run ./run --gui and load database while running these tests
+
 //  @Test
 //  public void aTestAPIHandleTableName() {
 //    EndpointRequestGenerator requestGenerator = new ClientRequestGenerator();
@@ -214,4 +214,5 @@
 //      e.printStackTrace();
 //    }
 //  }
-//}
+}
+
