@@ -2,17 +2,16 @@ package backendapi;
 
 import com.google.gson.Gson;
 import databaseloader.TableCommander;
+import databaseloader.TableLoader;
+import org.json.JSONException;
+import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 import java.sql.SQLException;
 
-/**
- * Class that handles any GET request to the /tableNames endpoint.
- * @author Suraj Anand
- */
-public class TableNameHandler implements Route {
+public class DBLoadHandler implements Route {
   /**
    * Creates a new GSON to create Json String from Object.
    */
@@ -26,11 +25,15 @@ public class TableNameHandler implements Route {
    */
   @Override
   public String handle(Request req, Response res) {
+    JSONObject values;
+    String dbName;
     try {
-      System.out.println(TableCommander.getDb());
-      return GSON.toJson(TableCommander.getDb().getTableNames());
+      values = new JSONObject(req.body());
+      dbName = values.getString("name");
+      TableCommander.setDb(new TableLoader("../data/" + dbName + ".sqlite3"));
+      return GSON.toJson("Successfully loaded database: " + dbName);
       // returns table names
-    } catch (IllegalStateException | SQLException e) {
+    } catch (IllegalStateException | JSONException | SQLException | ClassNotFoundException e) {
       return GSON.toJson(e.getMessage());
       // returns error
     }

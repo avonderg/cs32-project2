@@ -1,13 +1,7 @@
 import React from "react";
-// import "./App.css";
 import TableCell from "./TableCell";
-import { useState } from "react";
-import axios from "axios";
-// @ts-ignore
-import { AwesomeButton } from "react-awesome-button";
-// @ts-ignore
-import "react-awesome-button/dist/styles.css";
 
+// interface representing the input to the table row 
 interface TableRowInput {
   row: Record<string, string>;
   rowNum: string;
@@ -15,15 +9,22 @@ interface TableRowInput {
   deleteFunc: (r: Record<string, string>) => void;
 }
 
+/**
+ * returns a TableRow component
+ * @param props type TableRowInput, contains the info that goes into a table row
+ * @returns an HTML element representign a table row
+ */
 function TableRow(props: TableRowInput) {
   const loadRow = () => {
     let cells = [];
     cells.push(<TableCell text={props.rowNum} />);
+    // adds a table cell for every column of the table
     for (let i = 0; i < props.headerMap.size; i++) {
       let col: string = String(props.headerMap.get(i));
       let value = props.row[col];
       cells.push(<TableCell text={value} />);
     }
+    // adding a delete button for every row
     cells.push(
       <td>
         <button
@@ -40,7 +41,7 @@ function TableRow(props: TableRowInput) {
     );
     return cells;
   };
-  return <tr>{loadRow()}</tr>;
+  return <tr id={props.rowNum}>{loadRow()}</tr>;
 }
 
 export default TableRow;

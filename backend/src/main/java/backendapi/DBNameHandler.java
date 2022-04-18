@@ -1,23 +1,22 @@
 package backendapi;
 
 import com.google.gson.Gson;
-import databaseloader.TableCommander;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.sql.SQLException;
+import java.util.List;
 
-/**
- * Class that handles any GET request to the /tableNames endpoint.
- * @author Suraj Anand
- */
-public class TableNameHandler implements Route {
+public class DBNameHandler implements Route {
+
+  private static List<String> dbNames;
+  public DBNameHandler(List<String> names) {
+    dbNames = names;
+  }
   /**
    * Creates a new GSON to create Json String from Object.
    */
   private static final Gson GSON = new Gson();
-
   /**
    * Handles a request to spark backend server and this route.
    * @param req spark request (handled in typescript)
@@ -27,10 +26,9 @@ public class TableNameHandler implements Route {
   @Override
   public String handle(Request req, Response res) {
     try {
-      System.out.println(TableCommander.getDb());
-      return GSON.toJson(TableCommander.getDb().getTableNames());
+      return GSON.toJson(dbNames);
       // returns table names
-    } catch (IllegalStateException | SQLException e) {
+    } catch (IllegalStateException e) {
       return GSON.toJson(e.getMessage());
       // returns error
     }
