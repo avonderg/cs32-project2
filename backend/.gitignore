@@ -8,3 +8,25 @@ target/
 .settings/org.eclipse.core.resources.prefs
 .project
 .settings/org.eclipse.jdt.ui.prefs
+
+# dependencies
+kanbanapp/node_modules
+kanbanapp/.pnp
+kanbanapp/.pnp.js
+
+# testing
+kanbanapp/coverage
+
+# production
+kanbanapp/build
+
+# misc
+kanbanapp/.DS_Store
+kanbanapp/.env.local
+kanbanapp/.env.development.local
+kanbanapp/.env.test.local
+kanbanapp/.env.production.local
+
+kanbanapp/npm-debug.log*
+kanbanapp/yarn-debug.log*
+kanbanapp/yarn-error.log*
