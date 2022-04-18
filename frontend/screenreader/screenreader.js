@@ -37,7 +37,6 @@ function speak(text) {
         });
         VOICE_SYNTH.speak(utterance);
         // begins to speak
-        console.log("Rate: " + utterance.rate);
         return new Promise((resolve) => {
             utterance.onend = () => resolve();
         });
@@ -90,7 +89,9 @@ function generateHandlers() {
             let isElement = handleElement(htmlElt, i);
             if (htmlElt.tagName == "TABLE") {
                 let numberChildren = htmlElt.getElementsByTagName("*").length;
-                console.log(numberChildren);
+                console.log(htmlElt.getElementsByTagName("*"));
+                console.log(i);
+                console.log(index);
                 for (let j = index + 1; j < index + 1 + numberChildren; j++) {
                     toSkip.push(j);
                 }
@@ -316,37 +317,28 @@ function tableArriveHandler(elt) {
         let columns = elt.rows[0].cells.length;
         let rows = elt.rows.length;
         yield speak("Reached a table with " + rows + " rows and " + columns + " columns");
-        yield speak("Press w, s, a, and d to navigate. Press r to read. Press p to for position. Press l to leave.");
+        yield speak("Press w, s, a, and d to navigate. Press r to read. Press p for position. Press l to leave.");
+        // modality for table 
         let current_row = 0;
         let current_col = 0;
         return new Promise((resolve) => {
             document.body.addEventListener("keyup", function (event) {
                 return __awaiter(this, void 0, void 0, function* () {
                     let table = elt;
-                    console.log(String(current_row));
-                    console.log(String(current_col));
-                    if (event.key === "r") {
-                        let cell = table.rows[current_row].cells[current_col];
-                        yield speak(cell.textContent);
-                        let children = cell.getElementsByTagName("*");
-                        for (let child of children) {
-                            handleElementSolo(child);
-                        }
-                    }
                     if (event.key === "p") {
                         VOICE_SYNTH.cancel();
                         yield speak("Currently at row " + current_row + " and column " + current_col);
+                    }
+                    if (event.key === "r") {
+                        let cell = table.rows[current_row].cells[current_col];
+                        tableCellHandler(cell);
                     }
                     if (event.key === "d") {
                         VOICE_SYNTH.cancel();
                         if (current_col < table.rows[current_row].cells.length - 1) {
                             current_col = current_col + 1;
                             let cell = table.rows[current_row].cells[current_col];
-                            yield speak(cell.textContent);
-                            let children = cell.getElementsByTagName("*");
-                            for (let child of children) {
-                                handleElementSolo(child);
-                            }
+                            tableCellHandler(cell);
                         }
                     }
                     else if (event.key === "a") {
@@ -354,11 +346,7 @@ function tableArriveHandler(elt) {
                         if (current_col > 0) {
                             current_col = current_col - 1;
                             let cell = table.rows[current_row].cells[current_col];
-                            yield speak(cell.textContent);
-                            let children = cell.getElementsByTagName("*");
-                            for (let child of children) {
-                                handleElementSolo(child);
-                            }
+                            tableCellHandler(cell);
                         }
                     }
                     else if (event.key == "w") {
@@ -366,11 +354,7 @@ function tableArriveHandler(elt) {
                         if (current_row > 0) {
                             current_row = current_row - 1;
                             let cell = table.rows[current_row].cells[current_col];
-                            yield speak(cell.textContent);
-                            let children = cell.getElementsByTagName("*");
-                            for (let child of children) {
-                                handleElementSolo(child);
-                            }
+                            tableCellHandler(cell);
                         }
                     }
                     else if (event.key == "s") {
@@ -378,11 +362,7 @@ function tableArriveHandler(elt) {
                         if (current_row < rows - 1) {
                             current_row = current_row + 1;
                             let cell = table.rows[current_row].cells[current_col];
-                            yield speak(cell.textContent);
-                            let children = cell.getElementsByTagName("*");
-                            for (let child of children) {
-                                handleElementSolo(child);
-                            }
+                            tableCellHandler(cell);
                         }
                     }
                     else if (event.key == "l") {
@@ -392,58 +372,24 @@ function tableArriveHandler(elt) {
                 });
             });
         });
-        // iterate through all elements in DOM
-        // let i = 0;
-        // for (let e of collection as any){
-        //     const htmlElt = e as HTMLElement
-        //     let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
-        //     let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
-        //     if (tableTags.indexOf(htmlElt.tagName) > -1) {
-        //         ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
-        //     }
-        // }
     });
 }
-function tableKeystrokes(event) {
-    // can change and add key mappings as needed
-    if (event.key === "ArrowRight") {
-        event.preventDefault();
-        changeVoiceRate(1.1);
-    }
-    else if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        changeVoiceRate(0.9);
-    }
-    else if (event.key === "p") {
-        console.log(VOICE_SYNTH.paused);
-        if (VOICE_SYNTH.paused) { // if it is paused, then resume
-            resume();
-        }
-        else { // otherwise, pause
-            pause();
-        }
-    }
-    else if (event.key == "ArrowUp") {
-        previous();
-    }
-    else if (event.key == "ArrowDown") {
-        next();
-    }
-}
-function tableExitHandler(elt) {
+/**
+ * Generates handler functions for table cell elements. Handles
+ * DOM children elements
+ * @param cell:  HTMLTableCellElement input
+ */
+function tableCellHandler(cell) {
     return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve) => {
-            document.body.addEventListener("keyup", function (event) {
-                if (event.key === "Escape") {
-                    // Cancel the default action, if needed
-                    event.preventDefault();
-                    // cancel the current utterance and continue the readings
-                    console.log("RESOLVED");
-                    VOICE_SYNTH.cancel();
-                    resolve();
-                }
-            });
-        });
+        let children = cell.children;
+        console.log(children);
+        for (let child of children) {
+            handleElementSolo(child);
+        }
+        if (children.length == 0) {
+            yield speak(cell.textContent);
+            // only reads textContent if not have children (otherwise double read)
+        }
     });
 }
 /**
@@ -535,7 +481,6 @@ function previous() {
  */
 function start(curr) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('Start');
         let currentElement = ELEMENT_HANDLERS[+current];
         console.log(ELEMENT_HANDLERS);
         console.log(current);

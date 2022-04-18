@@ -35,7 +35,6 @@ function speak(text: string) {
 
         // begins to speak
 
-        console.log("Rate: " + utterance.rate)
         return new Promise<void>((resolve) => {
             utterance.onend = () => resolve()
         })
@@ -92,7 +91,10 @@ function generateHandlers(): void {
             let isElement : boolean = handleElement(htmlElt, i);
             if (htmlElt.tagName == "TABLE") {
                 let numberChildren : number = htmlElt.getElementsByTagName("*").length
-                console.log(numberChildren)
+                console.log(htmlElt.getElementsByTagName("*"))
+                console.log(i)
+                console.log(index)
+
                 for (let j : number = index + 1; j < index + 1 + numberChildren; j ++) {
                     toSkip.push(j);
                 }
@@ -135,7 +137,6 @@ function handleElement(htmlElt: HTMLElement, i: number): boolean {
     else if (htmlElt.tagName == "TABLE") {
         console.log("GOT HERE");
         ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableArriveHandler(x)]
-
     } 
     else {
         return false;
@@ -206,7 +207,6 @@ async function inputHandlers(elt: HTMLElement): Promise<void> {
         if (event.key === "Enter") {
             // Cancel the default action, if needed
             event.preventDefault();
-
             // trigger button element
             elt.focus();
             // differentiate between different types of inputs
@@ -327,7 +327,8 @@ async function tableArriveHandler(elt: HTMLElement): Promise<void> {
     let columns : number  = (elt as HTMLTableElement).rows[0].cells.length
     let rows : number = (elt as HTMLTableElement).rows.length
     await speak("Reached a table with " + rows + " rows and " + columns + " columns"  as string)
-    await speak("Press w, s, a, and d to navigate. Press r to read. Press p to for position. Press l to leave."  as string)
+    await speak("Press w, s, a, and d to navigate. Press r to read. Press p for position. Press l to leave."  as string)
+    // modality for table 
 
     let current_row : number = 0
     let current_col : number = 0
@@ -336,68 +337,42 @@ async function tableArriveHandler(elt: HTMLElement): Promise<void> {
         document.body.addEventListener("keyup", async function(event) {
 
             let table : HTMLTableElement = (elt as HTMLTableElement)
-            
-            console.log(String(current_row))
-            console.log(String(current_col))
     
-            if (event.key === "r") {
-                let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
-                await speak(cell.textContent as string)
-                let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
-                for (let child of children as any) {
-                    handleElementSolo(child)
-                }
-            }
             if (event.key === "p") {
                 VOICE_SYNTH.cancel();
                 await speak("Currently at row " + current_row + " and column " + current_col)
+            }
+            if (event.key === "r") {
+                let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
+                tableCellHandler(cell)
             }
             if (event.key === "d") {
                 VOICE_SYNTH.cancel();
                 if (current_col < table.rows[current_row].cells.length - 1) {
                     current_col = current_col + 1;
                     let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
-                    await speak(cell.textContent as string)
-                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
-                    for (let child of children as any) {
-                        handleElementSolo(child)
-                    }
-
+                    tableCellHandler(cell)
                 }
             } else if (event.key === "a") {
                 VOICE_SYNTH.cancel();
                 if (current_col > 0) {
                     current_col = current_col - 1;
                     let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
-                    await speak(cell.textContent as string)
-                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
-                    for (let child of children as any) {
-                        handleElementSolo(child)
-                    }
-
+                    tableCellHandler(cell)
                 }
             } else if (event.key == "w") {
                 VOICE_SYNTH.cancel();
                 if (current_row > 0) {
                     current_row = current_row - 1;
                     let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
-                    await speak(cell.textContent as string)
-                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
-                    for (let child of children as any) {
-                        handleElementSolo(child)
-                    }
-
+                    tableCellHandler(cell)
                 }
             } else if (event.key == "s") {
                 VOICE_SYNTH.cancel();
                 if (current_row < rows - 1) {
                     current_row = current_row + 1;
                     let cell : HTMLTableCellElement = table.rows[current_row].cells[current_col]
-                    await speak(cell.textContent as string)
-                    let children : HTMLCollectionOf<Element> = cell.getElementsByTagName("*");
-                    for (let child of children as any) {
-                        handleElementSolo(child)
-                    }
+                    tableCellHandler(cell)
                 }
             }
             else if (event.key == "l") {
@@ -406,63 +381,24 @@ async function tableArriveHandler(elt: HTMLElement): Promise<void> {
             }
         });
     })
-
-
-
-    // iterate through all elements in DOM
-    // let i = 0;
-    // for (let e of collection as any){
-    //     const htmlElt = e as HTMLElement
-    //     let textTags: Array<string> = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LABEL", "TITLE", "CAPTION", "TH", "TD"]
-    //     let tableTags: Array<string> = ["TABLE", "CAPTION", "TD", "TFOOT", "TH", "TR"];
-    //     if (tableTags.indexOf(htmlElt.tagName) > -1) {
-    //         ELEMENT_HANDLERS[i] = [htmlElt, (x) => tableHandlers(x)]
-    //     }
-    // }
-
 }
 
-function tableKeystrokes(event: KeyboardEvent): void {
-    // can change and add key mappings as needed
-    if (event.key === "ArrowRight") {
-        event.preventDefault();
-        changeVoiceRate(1.1);
-    } else if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        changeVoiceRate(0.9);
+/**
+ * Generates handler functions for table cell elements. Handles 
+ * DOM children elements
+ * @param cell:  HTMLTableCellElement input
+ */
+async function tableCellHandler(cell: HTMLTableCellElement): Promise<void> {
+    let children : HTMLCollectionOf<Element> = cell.children
+    console.log(children)
+    for (let child of children as any) {
+        handleElementSolo((child as HTMLElement))
     }
-    else if (event.key === "p") {
-        console.log(VOICE_SYNTH.paused);
-        if (VOICE_SYNTH.paused) {  // if it is paused, then resume
-            resume();
-        }
-        else {  // otherwise, pause
-            pause();
-        }
+    if (children.length == 0) {
+        await speak(cell.textContent as string)
+        // only reads textContent if not have children (otherwise double read)
     }
-    else if (event.key == "ArrowUp") {
-        previous();
-    }
-    else if (event.key == "ArrowDown") {
-        next();
-    }
-}
 
-async function tableExitHandler(elt: HTMLElement): Promise<void> {
-    return new Promise<void>((resolve) => {
-        document.body.addEventListener("keyup", function(event) {
-            
-            if (event.key === "Escape") {
-                // Cancel the default action, if needed
-                event.preventDefault();
-
-                // cancel the current utterance and continue the readings
-                console.log("RESOLVED");
-                VOICE_SYNTH.cancel();
-                resolve();
-            }
-        });
-    })
 }
 
 /**
@@ -553,7 +489,6 @@ async function previous() {
  * Starts reading the page continuously.
  */
 async function start(curr: String) {
-    console.log('Start');
     let currentElement =  ELEMENT_HANDLERS[+current]
     console.log(ELEMENT_HANDLERS)
     console.log(current)
