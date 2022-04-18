@@ -2,7 +2,9 @@ package edu.brown.cs.student.main;
 
 import selenium.SeleniumTest;
 
-
+/**
+ * Commander Class tests live table.
+ */
 public class SeleniumCommander implements CommandAcceptor {
 
     /**

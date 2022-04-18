@@ -7,9 +7,16 @@ import spark.Route;
 
 import java.util.List;
 
+/**
+ * Handles name db.
+ */
 public class DBNameHandler implements Route {
 
   private static List<String> dbNames;
+  /**
+   * Constructor for class.
+   * @param names List of names
+   */
   public DBNameHandler(List<String> names) {
     dbNames = names;
   }

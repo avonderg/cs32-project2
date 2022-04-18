@@ -11,6 +11,9 @@ import spark.Route;
 
 import java.sql.SQLException;
 
+/**
+ * Handles load db.
+ */
 public class DBLoadHandler implements Route {
   /**
    * Creates a new GSON to create Json String from Object.
